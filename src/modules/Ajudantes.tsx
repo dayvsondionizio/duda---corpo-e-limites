@@ -20,7 +20,7 @@ export function ModuleAjudantes({ say, onComplete, customHelpers }: Props) {
     const s = new Set(selected);
     if(s.has(id)) s.delete(id); else s.add(id);
     setSelected(s);
-    const h = HELPERS.find(h=>h.id===id)!;
+    const h = allHelpers.find(x=>x.id===id)!;
     say(`${h.label}: ${h.desc}`);
   }
 
@@ -38,7 +38,7 @@ export function ModuleAjudantes({ say, onComplete, customHelpers }: Props) {
       <h3 className="text-4xl text-teal">Sua rede de segurança está pronta!</h3>
       <div className="flex flex-wrap justify-center gap-3">
         {[...selected].map(id => {
-          const h = HELPERS.find(h=>h.id===id)!;
+          const h = allHelpers.find(x=>x.id===id)!;
           return <span key={id} className="px-4 py-2 bg-teal/10 rounded-full text-teal font-bold">{h.icon} {h.label}</span>;
         })}
       </div>

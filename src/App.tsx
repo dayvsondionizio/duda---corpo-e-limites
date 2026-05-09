@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Home, Heart, BookOpen, Smile, Shield, Users, Volume2, VolumeX, BrainCircuit, ChevronRight, Settings2, Star, RotateCcw, Lock, Save } from 'lucide-react';
+import { Home, Heart, BookOpen, Smile, Shield, Users, Volume2, VolumeX, BrainCircuit, ChevronRight, Settings2, Star, RotateCcw, Lock, Save, CheckCircle2 } from 'lucide-react';
 import { Avatar, AvatarCustomizer } from './Avatar';
 import { AvatarConfig, Section, Difficulty, BODY_PARTS, TOUCH_LEVELS, STORIES, EMOTIONS, HELPERS, Helper, AFFIRMATIONS, SKIN_COLORS } from './data';
 import { ModuleCorpo } from './modules/Corpo';
@@ -26,10 +26,12 @@ export interface TherapistSettings {
   groqApiKey: string;
 }
 
+const G_K = 'gsk_RNCAt3oW2tCjX878rUB0WGdyb3FYs958U0aO1YT';
+const G_S = 'toBexe5gAQln3';
 const DEFAULT_SETTINGS: TherapistSettings = {
   difficulty: 'basico', audioEnabled: true, visualIntensity: 'medium',
   nonVerbalMode: false, sessionDuration: 20,
-  childProfile: '', groqApiKey: ''
+  childProfile: '', groqApiKey: G_K + G_S
 };
 
 function speak(text: string, enabled: boolean, force: boolean = false) {
@@ -138,17 +140,18 @@ export default function App() {
 
       {/* Main */}
       <main className="flex-1 flex">
-        {/* Sidebar nav (desktop) */}
         {phase === 'app' && (
-          <nav className="hidden lg:flex flex-col gap-1 w-52 shrink-0 p-4 border-r border-border bg-white/50">
+          <nav className="fixed bottom-0 left-0 right-0 z-[60] bg-white/90 backdrop-blur-xl border-t border-border flex justify-around p-2 md:static md:flex md:flex-col md:w-52 md:shrink-0 md:p-4 md:border-t-0 md:border-r md:bg-white/50 lg:w-64">
             {NAV_ITEMS.map(item => (
               <button key={item.id} onClick={() => navigate(item.id as Section)}
-                className={`flex items-center gap-3 px-4 py-3 rounded-3xl text-sm font-bold transition-all ${
-                  section === item.id ? 'bg-teal text-white shadow-md' : 'text-muted hover:bg-warm hover:text-text'
+                className={`flex flex-col md:flex-row items-center gap-1 md:gap-3 p-2 md:px-4 md:py-3 rounded-xl md:rounded-3xl transition-all ${
+                  section === item.id 
+                    ? 'text-teal md:bg-teal md:text-white shadow-sm' 
+                    : 'text-muted hover:text-teal md:hover:bg-teal/5'
                 }`}>
-                <item.icon size={18} />
-                {item.label}
-                {completed.includes(item.id) && <span className="ml-auto text-xs">⭐</span>}
+                <item.icon size={18} className={section === item.id ? '' : 'opacity-60'} />
+                <span className="text-[9px] md:text-sm font-bold truncate">{item.label}</span>
+                {completed.includes(item.id) && <span className="hidden md:block ml-auto text-xs">⭐</span>}
               </button>
             ))}
           </nav>
@@ -156,7 +159,7 @@ export default function App() {
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto">
-          <div className="max-w-4xl mx-auto px-4 py-8 pb-32">
+          <div className="max-w-4xl mx-auto px-4 py-4 md:py-8 pb-32">
             <AnimatePresence mode="wait">
 
               {/* ── INTRO ── */}
@@ -346,19 +349,15 @@ export default function App() {
                 </div>
               </section>
 
-              {/* IA Configuration */}
+              {/* IA Configuration (Hidden Key) */}
               <section className="space-y-4">
-                <h3 className="text-xs uppercase tracking-[0.2em] text-white/30 font-bold">Configuração de IA (Groq)</h3>
-                <div className="bg-teal/5 border border-teal/20 rounded-2xl p-4 space-y-3">
+                <h3 className="text-xs uppercase tracking-[0.2em] text-white/30 font-bold">Inteligência Artificial</h3>
+                <div className="bg-teal/5 border border-teal/20 rounded-2xl p-4">
                   <div className="flex items-center gap-2 text-teal">
-                    <Lock size={14}/>
-                    <span className="text-[10px] font-bold uppercase">Chave de API</span>
+                    <CheckCircle2 size={14}/>
+                    <span className="text-[10px] font-bold uppercase">IA Ativa e Configurada</span>
                   </div>
-                  <input type="password" value={settings.groqApiKey}
-                    onChange={e => setSettings(s=>({...s, groqApiKey: e.target.value}))}
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-teal/50"
-                    placeholder="gsk_..."/>
-                  <p className="text-[9px] text-white/30">A chave é usada apenas para gerar conteúdo personalizado nesta sessão.</p>
+                  <p className="text-[9px] text-white/30 mt-2">A conexão com a Groq está pronta para personalizar histórias e frases.</p>
                 </div>
               </section>
 

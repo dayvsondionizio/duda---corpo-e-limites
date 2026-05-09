@@ -113,7 +113,7 @@ export function Avatar({ config, size='md', highlightPart, onPartClick, animated
           <rect x="88" y="105" width="24" height="35" rx="12" fill={config.skin} />
         </g>
 
-        {/* Back Hair (Behind Head) */}
+        {/* 1. Behind Hair (Back View & Long hair) */}
         {config.hair !== 'bald' && (
           <g style={{ pointerEvents: 'none' }}>
             {config.hair === 'long' && (
@@ -124,14 +124,7 @@ export function Avatar({ config, size='md', highlightPart, onPartClick, animated
                  <circle cx="100" cy="30" r="35" />
                  <circle cx="75" cy="40" r="30" />
                  <circle cx="125" cy="40" r="30" />
-                 <circle cx="65" cy="70" r="25" />
-                 <circle cx="135" cy="70" r="25" />
-                 <circle cx="75" cy="100" r="22" />
-                 <circle cx="125" cy="100" r="22" />
                </g>
-            )}
-            {config.hair === 'short' && (
-               <path d="M58 70 Q58 20 100 20 Q142 20 142 70 L142 90 Q100 80 58 90 Z" fill={hairColor} />
             )}
           </g>
         )}
@@ -141,22 +134,46 @@ export function Avatar({ config, size='md', highlightPart, onPartClick, animated
           <ellipse cx="100" cy="70" rx="42" ry="46" fill={config.skin} />
         </g>
 
-        {/* Front Hair (On top of face) */}
-        {!backView && config.hair !== 'bald' && (
+        {/* 2. Top Hair (Back view overlay or Front hair) */}
+        {config.hair !== 'bald' && (
           <g style={{ pointerEvents: 'none' }}>
-            {config.hair === 'short' && (
-              <path d="M58 70 Q58 20 100 20 Q142 20 142 70 Q100 50 58 70" fill={hairColor} />
-            )}
-            {config.hair === 'long' && (
-              <path d="M58 70 Q58 20 100 20 Q142 20 142 70 Q120 60 100 65 Q80 60 58 70" fill={hairColor} />
-            )}
-            {config.hair === 'curly' && (
+            {/* Back View Full Coverage */}
+            {backView ? (
               <g fill={hairColor}>
-                <circle cx="70" cy="35" r="15" />
-                <circle cx="100" cy="25" r="15" />
-                <circle cx="130" cy="35" r="15" />
-                <circle cx="65" cy="60" r="12" />
-                <circle cx="135" cy="60" r="12" />
+                {config.hair === 'short' && (
+                   <path d="M58 70 Q58 20 100 20 Q142 20 142 70 L142 95 Q100 85 58 95 Z" />
+                )}
+                {config.hair === 'long' && (
+                   <path d="M58 70 Q58 20 100 20 Q142 20 142 70 Q142 100 142 100 Q100 90 58 100 L58 70" />
+                )}
+                {config.hair === 'curly' && (
+                   <g>
+                     <circle cx="65" cy="70" r="25" />
+                     <circle cx="135" cy="70" r="25" />
+                     <circle cx="75" cy="100" r="22" />
+                     <circle cx="125" cy="100" r="22" />
+                     <circle cx="100" cy="60" r="30" />
+                   </g>
+                )}
+              </g>
+            ) : (
+              /* Front View Fringe */
+              <g fill={hairColor}>
+                {config.hair === 'short' && (
+                  <path d="M58 70 Q58 20 100 20 Q142 20 142 70 Q100 50 58 70" />
+                )}
+                {config.hair === 'long' && (
+                  <path d="M58 70 Q58 20 100 20 Q142 20 142 70 Q120 60 100 65 Q80 60 58 70" />
+                )}
+                {config.hair === 'curly' && (
+                  <g>
+                    <circle cx="70" cy="35" r="15" />
+                    <circle cx="100" cy="25" r="15" />
+                    <circle cx="130" cy="35" r="15" />
+                    <circle cx="65" cy="60" r="12" />
+                    <circle cx="135" cy="60" r="12" />
+                  </g>
+                )}
               </g>
             )}
           </g>

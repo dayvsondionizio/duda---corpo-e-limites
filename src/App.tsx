@@ -70,7 +70,6 @@ export default function App() {
   const [avatar, setAvatar] = useState<AvatarConfig>(DEFAULT_AVATAR);
   const [section, setSection] = useState<Section>('home');
   const [settings, setSettings] = useState<TherapistSettings>(DEFAULT_SETTINGS);
-  const [showTherapist, setShowTherapist] = useState(false);
   const [completed, setCompleted] = useState<string[]>([]);
   const [notes, setNotes] = useState('');
   const [affirmIdx, setAffirmIdx] = useState(0);
@@ -126,11 +125,6 @@ export default function App() {
                 className={`p-2.5 rounded-2xl transition-all ${settings.audioEnabled ? 'bg-teal/10 text-teal' : 'bg-rose/10 text-rose'}`}>
                 {settings.audioEnabled ? <Volume2 size={20} /> : <VolumeX size={20} />}
               </button>
-
-              <button onClick={() => { say('Modo profissional aberto', true); setShowTherapist(p=>!p); }}
-                className="p-2.5 rounded-2xl bg-warm hover:bg-border transition-colors">
-                <BrainCircuit size={20} className="text-muted" />
-              </button>
             </div>
           </div>
         </header>
@@ -144,7 +138,7 @@ export default function App() {
               <button key={item.id} onClick={() => navigate(item.id as Section)}
                 className={`nav-pill ${section === item.id ? 'active' : ''}`}>
                 <item.icon size={20} />
-                <span className="text-xs font-bold">{item.label}</span>
+                <span className="text-[10px] font-bold hidden md:block">{item.label}</span>
               </button>
             ))}
             <div className="hidden md:block mt-auto pt-6 border-t border-border">
@@ -364,67 +358,6 @@ export default function App() {
           </div>
         </div>
       </main>
-
-      {/* Therapist Panel Overlay */}
-      <AnimatePresence>
-        {showTherapist && (
-          <motion.div initial={{opacity:0, x:'100%'}} animate={{opacity:1, x:0}} exit={{opacity:0, x:'100%'}}
-            className="fixed inset-y-0 right-0 w-full max-w-sm bg-[#1a2332] text-white z-[200] flex flex-col shadow-2xl overflow-y-auto custom-scrollbar">
-            <div className="p-6 border-b border-white/10 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-teal rounded-2xl flex items-center justify-center"><BrainCircuit size={20}/></div>
-                <div>
-                  <p className="font-bold">Painel Terapeuta</p>
-                  <p className="text-xs text-white/40">Sessão em curso</p>
-                </div>
-              </div>
-              <button onClick={() => setShowTherapist(false)} className="text-white/40 hover:text-white transition-colors">
-                <ChevronRight size={28}/>
-              </button>
-            </div>
-
-            <div className="p-6 space-y-8">
-               {/* Minimal mid-session settings */}
-               <section className="space-y-4">
-                 <h3 className="text-xs uppercase tracking-[0.2em] text-white/30 font-bold">Ajustes Rápidos</h3>
-                 <div className="space-y-2">
-                    <button onClick={() => setSettings(s=>({...s, audioEnabled:!s.audioEnabled}))}
-                      className="w-full flex items-center justify-between bg-white/5 p-4 rounded-2xl text-sm">
-                      <span>Voz do App</span>
-                      <span className={settings.audioEnabled ? 'text-teal':'text-rose'}>{settings.audioEnabled ? 'Ligada':'Desligada'}</span>
-                    </button>
-                    <div className="flex items-center justify-between bg-white/5 p-4 rounded-2xl text-sm">
-                       <span>Dificuldade</span>
-                       <span className="text-teal font-bold">{settings.difficulty.toUpperCase()}</span>
-                    </div>
-                 </div>
-               </section>
-
-               <section className="space-y-4">
-                 <h3 className="text-xs uppercase tracking-[0.2em] text-white/30 font-bold">Perfil Ativo</h3>
-                 <div className="bg-white/5 p-4 rounded-2xl text-[11px] text-white/60 leading-relaxed max-h-40 overflow-y-auto">
-                    {settings.childProfile || 'Nenhum perfil definido.'}
-                 </div>
-               </section>
-
-               <section className="space-y-4">
-                 <h3 className="text-xs uppercase tracking-[0.2em] text-white/30 font-bold">Notas da Sessão</h3>
-                 <textarea value={notes} onChange={e => setNotes(e.target.value)}
-                   className="w-full h-32 bg-white/5 border border-white/10 rounded-2xl p-4 text-xs text-white outline-none focus:border-teal/50 transition-colors placeholder:text-white/20 resize-none"
-                   placeholder="Anote as reações e aprendizados da criança..."/>
-               </section>
-
-               <button onClick={() => setShowTherapist(false)}
-                 className="btn-primary w-full py-4 text-xs flex items-center justify-center gap-2">
-                 <Save size={14}/> Salvar e Voltar
-               </button>
-
-               <div className="h-px bg-white/10 my-4" />
-               <p className="text-[10px] text-white/20 text-center italic">Para mudanças estruturais profundas, reinicie o aplicativo.</p>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </div>
   );
 }

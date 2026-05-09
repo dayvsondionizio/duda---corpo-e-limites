@@ -7,7 +7,7 @@ import { generateContent } from '../services/GroqService';
 import { AAC_CATEGORIES } from '../data';
 
 interface Props {
-  settings: TherapistSettings; say:(t:string)=>void;
+  settings: TherapistSettings; say:(t:string, force?: boolean)=>void;
   onComplete:(id:string)=>void; onNavigate:(s:any)=>void; avatar:AvatarConfig;
 }
 
@@ -31,7 +31,8 @@ export function ModuleVoz({ say, onComplete, settings }: Props) {
   const [sentence, setSentence] = useState<{id: string, label: string, icon: string}[]>([]);
 
   const practice = useCallback((i: number) => {
-    say(phrases[i].text);
+    // Actionable items always play sound (force: true)
+    say(phrases[i].text, true);
     const newSet = new Set(practiced).add(i);
     setPracticed(newSet);
     const power = Math.round((newSet.size / phrases.length) * 100);
@@ -43,7 +44,8 @@ export function ModuleVoz({ say, onComplete, settings }: Props) {
 
   const addToSentence = (item: any) => {
     setSentence([...sentence, item]);
-    say(item.label);
+    // Actionable items always play sound (force: true)
+    say(item.label, true);
   };
 
   const clearSentence = () => {
@@ -53,16 +55,19 @@ export function ModuleVoz({ say, onComplete, settings }: Props) {
   const speakSentence = () => {
     if (sentence.length === 0) return;
     const fullText = sentence.map(s => s.label).join(' ');
-    say(fullText);
+    // Actionable items always play sound (force: true)
+    say(fullText, true);
   };
 
   async function personalizePhrases() {
     if (!settings.groqApiKey) {
+      // System feedback respects audioEnabled (force: false)
       say('Configure a chave da Groq para personalizar.');
       return;
     }
     setLoading(true);
-    say('A IA está preparando frases especiais para você...');
+    // User requested: Clicking "Personalizar com IA" should NOT have sound
+    // say('A IA está preparando frases especiais para você...'); // Removed sound feedback
 
     const prompt = `Crie 5 frases curtas (max 4 palavras), empoderadoras e fáceis para uma criança com este perfil: "${settings.childProfile || 'Perfil geral'}". 
     Foco em autonomia corporal. Retorne APENAS JSON: [{"text": "...", "emoji": "...", "tip": "..."}]`;
@@ -74,7 +79,9 @@ export function ModuleVoz({ say, onComplete, settings }: Props) {
         setPhrases(JSON.parse(jsonStr));
         setPracticed(new Set());
         setActivePower(0);
-        say('Frases personalizadas prontas!');
+        // User requested: Only phrases and board have sound. 
+        // This is a system success message, so we keep it silent if main audio is off.
+        say('Frases personalizadas prontas!'); 
       }
     } catch (e) {
       say('Erro ao criar frases.');

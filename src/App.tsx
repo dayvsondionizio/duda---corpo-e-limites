@@ -2,7 +2,7 @@ import React, { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Home, Heart, BookOpen, Smile, Shield, Users, Volume2, VolumeX, BrainCircuit, ChevronRight, Settings2, Star, RotateCcw, Lock, Save } from 'lucide-react';
 import { Avatar, AvatarCustomizer } from './Avatar';
-import { AvatarConfig, Section, Difficulty, BODY_PARTS, TOUCH_LEVELS, STORIES, EMOTIONS, HELPERS, AFFIRMATIONS, SKIN_COLORS } from './data';
+import { AvatarConfig, Section, Difficulty, BODY_PARTS, TOUCH_LEVELS, STORIES, EMOTIONS, HELPERS, Helper, AFFIRMATIONS, SKIN_COLORS } from './data';
 import { ModuleCorpo } from './modules/Corpo';
 import { ModuleEspaco } from './modules/Espaco';
 import { ModuleSemaforo } from './modules/Semaforo';
@@ -64,6 +64,7 @@ const HOME_MODULES = [
 ];
 
 export default function App() {
+  const [resetKey, setResetKey] = useState(0);
   const [phase, setPhase] = useState<'intro'|'customize'|'app'>('intro');
   const [gender, setGender] = useState<string>('');
   const [avatar, setAvatar] = useState<AvatarConfig>(DEFAULT_AVATAR);
@@ -73,37 +74,41 @@ export default function App() {
   const [completed, setCompleted] = useState<string[]>([]);
   const [notes, setNotes] = useState('');
   const [affirmIdx, setAffirmIdx] = useState(0);
+  const [customHelpers, setCustomHelpers] = useState<Helper[]>([]);
 
   const say = useCallback((t: string, force: boolean = false) => {
-    // If we're in the "voz" section, we force the audio regardless of global mute
     const isVoz = section === 'voz';
     speak(t, settings.audioEnabled, force || isVoz);
   }, [settings.audioEnabled, section]);
 
   const resetApp = () => {
     if (confirm('Deseja reiniciar o aplicativo? Todo o progresso da sessão será perdido.')) {
+      setResetKey(prev => prev + 1);
       setPhase('intro');
       setCompleted([]);
       setSection('home');
       setNotes('');
       setAffirmIdx(0);
+      setAvatar(DEFAULT_AVATAR);
       window.scrollTo(0,0);
     }
   };
 
+  const addCustomHelper = (h: Helper) => setCustomHelpers(prev => [...prev, h]);
+
   const complete = useCallback((id: string) => setCompleted(p => p.includes(id) ? p : [...p, id]), []);
   const navigate = useCallback((s: Section) => { setSection(s); window.scrollTo(0,0); }, []);
 
-  const sharedProps = { settings, say, onComplete: complete, onNavigate: navigate, avatar };
+  const sharedProps = { settings, say, onComplete: complete, onNavigate: navigate, avatar, customHelpers };
 
   return (
-    <div className="min-h-screen bg-cream flex flex-col overflow-x-hidden">
+    <div key={resetKey} className="min-h-screen bg-cream flex flex-col overflow-x-hidden">
       {/* Header */}
       {phase === 'app' && (
         <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-border px-4 py-3">
           <div className="max-w-6xl mx-auto flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <button onClick={resetApp} className="w-10 h-10 bg-teal rounded-2xl flex items-center justify-center text-white text-lg hover:rotate-180 transition-transform duration-500">
+              <button onClick={resetApp} className="w-10 h-10 bg-teal rounded-2xl flex items-center justify-center text-white text-lg hover:rotate-180 transition-transform duration-500 shadow-sm">
                 <RotateCcw size={18}/>
               </button>
               <div className="hidden sm:block">
@@ -240,7 +245,7 @@ export default function App() {
                   {section === 'historias' && <ModuleHistorias {...sharedProps} />}
                   {section === 'emocoes'   && <ModuleEmocoes   {...sharedProps} />}
                   {section === 'voz'       && <ModuleVoz       {...sharedProps} />}
-                  {section === 'ajudantes' && <ModuleAjudantes {...sharedProps} />}
+                  {section === 'ajudantes' && <ModuleAjudantes {...sharedProps} customHelpers={customHelpers} />}
                   {section === 'progresso' && <ModuleProgresso {...sharedProps} completed={completed} totalModules={HOME_MODULES.length} />}
                 </motion.div>
               )}
@@ -369,6 +374,49 @@ export default function App() {
                 className="btn-primary w-full py-4 text-xs flex items-center justify-center gap-2">
                 <Save size={14}/> Salvar Configurações
               </button>
+
+              <div className="h-px bg-white/10 my-4" />
+
+              {/* Custom Helper Form */}
+              <section className="space-y-4">
+                <h3 className="text-xs uppercase tracking-[0.2em] text-white/30 font-bold">Criar Novo Ajudante</h3>
+                <div className="bg-white/5 p-4 rounded-2xl space-y-4">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <label className="text-[10px] text-white/40 uppercase">Nome</label>
+                      <input id="helper-name" className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs text-white" placeholder="Ex: Tio João"/>
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[10px] text-white/40 uppercase">Emoji</label>
+                      <input id="helper-emoji" className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs text-white text-center" placeholder="🧑"/>
+                    </div>
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[10px] text-white/40 uppercase">Toque Permitido</label>
+                    <textarea id="helper-touch" className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-xs text-white resize-none h-16" placeholder="Onde e como pode tocar..."/>
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[10px] text-white/40 uppercase">Como se aproxima</label>
+                    <textarea id="helper-approach" className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-xs text-white resize-none h-16" placeholder="Ex: Pede permissão, avisa antes..."/>
+                  </div>
+                  <button onClick={() => {
+                    const name = (document.getElementById('helper-name') as HTMLInputElement).value;
+                    const emoji = (document.getElementById('helper-emoji') as HTMLInputElement).value;
+                    const touch = (document.getElementById('helper-touch') as HTMLTextAreaElement).value;
+                    const approach = (document.getElementById('helper-approach') as HTMLTextAreaElement).value;
+                    if(name && emoji) {
+                      addCustomHelper({ id: Date.now().toString(), label: name, icon: emoji, desc: 'Ajudante personalizado.', allowedTouch: touch, approach: approach });
+                      (document.getElementById('helper-name') as HTMLInputElement).value = '';
+                      (document.getElementById('helper-emoji') as HTMLInputElement).value = '';
+                      (document.getElementById('helper-touch') as HTMLTextAreaElement).value = '';
+                      (document.getElementById('helper-approach') as HTMLTextAreaElement).value = '';
+                      speak('Novo ajudante criado!', true);
+                    }
+                  }} className="w-full py-3 bg-white/10 hover:bg-white/20 rounded-xl text-xs text-white font-bold transition-all">
+                    + Adicionar Ajudante
+                  </button>
+                </div>
+              </section>
             </div>
           </motion.div>
         )}

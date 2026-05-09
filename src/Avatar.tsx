@@ -1,5 +1,6 @@
 import React from 'react';
-import { AvatarConfig, SKIN_COLORS, HAIR_COLORS, CLOTHING_COLORS } from './data';
+import { motion } from 'motion/react';
+import { AvatarConfig, SKIN_COLORS, HAIR_COLORS, CLOTHING_COLORS, BODY_PARTS } from './data';
 
 /* ─── Avatar SVG ──────────────────────────────────────────── */
 interface AvatarProps {
@@ -16,10 +17,12 @@ export function Avatar({ config, size='md', highlightPart, onPartClick, animated
   const px = SIZE_MAP[size];
   const anim = animated ? 'animate-float' : '';
 
+  // Get coordinates for the pointer arrow if a part is highlighted
+  const partData = BODY_PARTS.find(p => p.id === highlightPart);
+
   const partStyle = (id: string) => ({
     cursor: onPartClick ? 'pointer' : 'default',
     transition: 'all 0.3s ease',
-    filter: highlightPart === id ? 'drop-shadow(0 0 12px rgba(42,157,143,0.9))' : undefined,
   });
 
   const click = (e: React.MouseEvent, id: string) => {
@@ -31,7 +34,7 @@ export function Avatar({ config, size='md', highlightPart, onPartClick, animated
     <div className={`${anim} flex items-center justify-center relative`} style={{ width: px, height: px * 1.4 }}>
       <svg width={px} height={px * 1.4} viewBox="0 0 200 320" fill="none" xmlns="http://www.w3.org/2000/svg" className="overflow-visible">
         {/* Legs */}
-        <g onClick={(e) => click(e, 'pernas')} style={partStyle('pernas')} className={highlightPart === 'pernas' ? 'animate-glow' : ''}>
+        <g onClick={(e) => click(e, 'pernas')} style={partStyle('pernas')}>
           <rect x="80" y="235" width="22" height="60" rx="11" fill={config.skin} />
           <rect x="108" y="235" width="22" height="60" rx="11" fill={config.skin} />
         </g>
@@ -54,7 +57,6 @@ export function Avatar({ config, size='md', highlightPart, onPartClick, animated
         {/* Peito */}
         <g onClick={(e) => click(e, 'peito')} style={partStyle('peito')}>
           <rect x="70" y="135" width="60" height="40" rx="15" fill="transparent" />
-          {highlightPart === 'peito' && <rect x="75" y="140" width="50" height="30" rx="10" fill="rgba(255,255,255,0.2)" />}
         </g>
 
         {/* Barriga */}
@@ -67,10 +69,7 @@ export function Avatar({ config, size='md', highlightPart, onPartClick, animated
         <g onClick={(e) => click(e, 'vulva_penis')} style={partStyle('vulva_penis')}>
           <rect x="85" y="210" width="30" height="30" rx="15" fill="transparent" />
           {highlightPart === 'vulva_penis' && (
-             <g>
-               <circle cx="100" cy="222" r="18" fill="rgba(231,111,81,0.2)" stroke="#E76F51" strokeWidth="2" strokeDasharray="4 2" />
-               <text x="100" y="226" textAnchor="middle" fontSize="14">🔒</text>
-             </g>
+             <circle cx="100" cy="222" r="18" fill="rgba(231,111,81,0.1)" stroke="#E76F51" strokeWidth="1" strokeDasharray="2 2" />
           )}
         </g>
 
@@ -102,6 +101,30 @@ export function Avatar({ config, size='md', highlightPart, onPartClick, animated
           <ellipse cx="100" cy="70" rx="45" ry="48" fill={config.skin} />
         </g>
 
+        {/* Hair Styles */}
+        {config.hair !== 'bald' && (
+          <g style={{ pointerEvents: 'none' }}>
+            {config.hair === 'short' && (
+              <path d="M55 70 Q55 30 100 30 Q145 30 145 70 L145 75 Q100 65 55 75 Z" fill={config.hairColor} />
+            )}
+            {config.hair === 'long' && (
+              <>
+                <path d="M55 70 Q55 25 100 25 Q145 25 145 70 L145 150 Q100 140 55 150 Z" fill={config.hairColor} />
+                <rect x="55" y="70" width="90" height="10" fill={config.hairColor} />
+              </>
+            )}
+            {config.hair === 'curly' && (
+              <g fill={config.hairColor}>
+                <circle cx="100" cy="35" r="25" />
+                <circle cx="70" cy="45" r="20" />
+                <circle cx="130" cy="45" r="20" />
+                <circle cx="60" cy="70" r="15" />
+                <circle cx="140" cy="70" r="15" />
+              </g>
+            )}
+          </g>
+        )}
+
         {/* Eyes */}
         <g onClick={(e) => click(e, 'olho')} style={partStyle('olho')}>
           <ellipse cx="86" cy="72" rx="7" ry="8" fill="white" />
@@ -120,6 +143,20 @@ export function Avatar({ config, size='md', highlightPart, onPartClick, animated
           <circle cx="68" cy="135" r="12" fill={config.clothing} opacity="0.5" />
           <circle cx="132" cy="135" r="12" fill={config.clothing} opacity="0.5" />
         </g>
+
+        {/* Pointer Arrow */}
+        {partData && (
+          <motion.g initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ repeat: Infinity, duration: 1, repeatType: 'reverse' }}>
+            <path 
+              d={`M ${partData.svgX - 50} ${partData.svgY} L ${partData.svgX - 25} ${partData.svgY}`} 
+              stroke="#2A9D8F" strokeWidth="4" strokeLinecap="round" 
+            />
+            <path 
+              d={`M ${partData.svgX - 35} ${partData.svgY - 8} L ${partData.svgX - 25} ${partData.svgY} L ${partData.svgX - 35} ${partData.svgY + 8}`} 
+              fill="#2A9D8F" 
+            />
+          </motion.g>
+        )}
       </svg>
     </div>
   );

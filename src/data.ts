@@ -196,6 +196,24 @@ export const HELPERS: Helper[] = [
     allowedTouch:'Pode examinar qualquer parte do corpo para saúde, sempre com você e um responsável junto.',
     approach:'Usa luvas, explica o que vai fazer e pede permissão.'
   },
+  { 
+    id:'tio', label:'Tio/Tia', icon:'🧑‍🦰', 
+    desc:'Meus tios que eu confio.',
+    allowedTouch:'Abraços e beijos no rosto.',
+    approach:'Respeitam se eu não quiser dar um abraço agora.'
+  },
+  { 
+    id:'cuidador', label:'Cuidador(a)', icon:'🧑‍🍼', 
+    desc:'Pessoa que me ajuda no dia a dia.',
+    allowedTouch:'Ajudar no banho e troca de roupa (higiene).',
+    approach:'Sempre explica o que vai fazer antes de tocar.'
+  },
+  { 
+    id:'amigo_familia', label:'Amigo da Família', icon:'🧑‍🤝‍🧑', 
+    desc:'Pessoas que visitam minha casa.',
+    allowedTouch:'Um "toca aqui" 👋 ou aceno.',
+    approach:'Mantêm uma distância respeitosa e são gentis.'
+  },
 ];
 
 export const AFFIRMATIONS = [

@@ -1,17 +1,20 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { HELPERS } from '../data';
+import { HELPERS, Helper } from '../data';
 import type { TherapistSettings } from '../App';
 import type { AvatarConfig } from '../data';
 
 interface Props {
   settings: TherapistSettings; say:(t:string)=>void;
   onComplete:(id:string)=>void; onNavigate:(s:any)=>void; avatar:AvatarConfig;
+  customHelpers: Helper[];
 }
 
-export function ModuleAjudantes({ say, onComplete }: Props) {
+export function ModuleAjudantes({ say, onComplete, customHelpers }: Props) {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [done, setDone] = useState(false);
+
+  const allHelpers = [...HELPERS, ...customHelpers];
 
   function toggle(id: string) {
     const s = new Set(selected);
@@ -57,7 +60,7 @@ export function ModuleAjudantes({ say, onComplete }: Props) {
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-        {HELPERS.map(h => (
+        {allHelpers.map(h => (
           <motion.button key={h.id} whileTap={{scale:0.95}}
             onClick={()=>toggle(h.id)}
             className={`flex flex-col items-center gap-3 p-6 rounded-4xl border-2 transition-all ${
@@ -78,7 +81,7 @@ export function ModuleAjudantes({ say, onComplete }: Props) {
             <h3 className="text-xl font-bold text-teal">Como eles cuidam de você?</h3>
             <div className="grid sm:grid-cols-2 gap-4">
               {[...selected].map(id => {
-                const h = HELPERS.find(x=>x.id===id)!;
+                const h = allHelpers.find(x=>x.id===id)!;
                 return (
                   <div key={id} className="card p-5 space-y-3 bg-white border-teal/20">
                     <div className="flex items-center gap-3">

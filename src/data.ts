@@ -19,19 +19,24 @@ export const BODY_PARTS: BodyPart[] = [
   { id:'cabeca', label:'Cabeça', difficulty:'basico', description:'Onde pensamos e sentimos o mundo.', svgX:100, svgY:45 },
   { id:'olho', label:'Olho', difficulty:'basico', description:'Para ver as cores do mundo.', svgX:100, svgY:65 },
   { id:'boca', label:'Boca', difficulty:'basico', description:'Para falar, sorrir e comer.', svgX:100, svgY:82 },
+  { id:'pescoco', label:'Pescoço', difficulty:'intermediario', description:'Sustenta nossa cabeça e nos ajuda a olhar para os lados.', svgX:100, svgY:100 },
+  { id:'ombro', label:'Ombro', difficulty:'basico', description:'Onde apoiamos nossa mochila.', svgX:65, svgY:115 },
+  { id:'peito', label:'Peito', difficulty:'basico', description:'Onde sentimos nosso coração bater. É uma parte que fica protegida pela roupa.', isPrivate:true, svgX:100, svgY:135 },
+  { id:'barriga', label:'Barriga', difficulty:'basico', description:'Onde a comida vai e onde fica o nosso umbigo.', svgX:100, svgY:170 },
   { id:'braco', label:'Braço', difficulty:'basico', description:'Para brincar e dar abraços.', svgX:60, svgY:145 },
-  { id:'mao', label:'Mão', difficulty:'basico', description:'Para fazer carinho e criar coisas.', svgX:38, svgY:190 },
-  { id:'pe', label:'Pé', difficulty:'basico', description:'Nos leva para todos os lugares.', svgX:95, svgY:290 },
-  { id:'ombro', label:'Ombro', difficulty:'intermediario', description:'Onde apoiamos nossa mochila.', svgX:65, svgY:115 },
   { id:'cotovelo', label:'Cotovelo', difficulty:'intermediario', description:'A dobrinha do braço.', svgX:55, svgY:162 },
-  { id:'joelho', label:'Joelho', difficulty:'intermediario', description:'A dobrinha da perna.', svgX:90, svgY:250 },
-  { id:'dedos', label:'Dedos', difficulty:'intermediario', description:'Pequenos ajudantes das mãos.', svgX:38, svgY:205 },
-  { id:'costas', label:'Costas', difficulty:'intermediario', description:'A parte de trás do corpo.', svgX:145, svgY:155 },
-  { id:'sobrancelha', label:'Sobrancelha', difficulty:'avancado', description:'Ficam em cima dos olhos.', svgX:100, svgY:58 },
   { id:'pulso', label:'Pulso', difficulty:'avancado', description:'Onde o relógio fica.', svgX:42, svgY:193 },
-  { id:'tornozelo', label:'Tornozelo', difficulty:'avancado', description:'Perto do pé.', svgX:90, svgY:280 },
+  { id:'mao', label:'Mão', difficulty:'basico', description:'Para fazer carinho e criar coisas.', svgX:38, svgY:190 },
+  { id:'dedos', label:'Dedos', difficulty:'intermediario', description:'Pequenos ajudantes das mãos.', svgX:38, svgY:205 },
   { id:'cintura', label:'Cintura', difficulty:'avancado', description:'Onde seguramos a calça.', svgX:100, svgY:185 },
-  { id:'zona_intima', label:'Partes Privadas', difficulty:'basico', description:'Ficam cobertas pela roupa de banho. São só suas!', isPrivate:true, svgX:100, svgY:200 },
+  { id:'vulva_penis', label:'Partes Íntimas', difficulty:'basico', description:'Ficam cobertas pela roupa de baixo. São só suas e ninguém deve tocar sem um motivo de saúde ou higiene.', isPrivate:true, svgX:100, svgY:210 },
+  { id:'pernas', label:'Pernas', difficulty:'basico', description:'Fortes para nos fazer correr e pular.', svgX:85, svgY:240 },
+  { id:'coxas', label:'Coxas', difficulty:'intermediario', description:'A parte de cima das nossas pernas.', svgX:85, svgY:225 },
+  { id:'joelho', label:'Joelho', difficulty:'intermediario', description:'A dobrinha da perna.', svgX:90, svgY:250 },
+  { id:'tornozelo', label:'Tornozelo', difficulty:'avancado', description:'Perto do pé.', svgX:90, svgY:280 },
+  { id:'pe', label:'Pé', difficulty:'basico', description:'Nos leva para todos os lugares.', svgX:95, svgY:290 },
+  { id:'costas', label:'Costas', difficulty:'intermediario', description:'A parte de trás do corpo.', svgX:145, svgY:155 },
+  { id:'bum_bum', label:'Bumbum', difficulty:'basico', description:'Parte de trás que usamos para sentar. É uma parte privada.', isPrivate:true, svgX:100, svgY:230 },
 ];
 
 export interface TouchLevel {
@@ -149,17 +154,48 @@ export const EMOTIONS: Emotion[] = [
   { id:'desconforto', label:'Desconforto', icon:'😣', color:'#E76F51', bg:'#FADDD5', signals:['Barriga estranha','Quero sair','Não gosto disso','Tensão no corpo'], tip:'Desconforto avisa: algo não está certo. Pode pedir ajuda!' },
 ];
 
-export interface Helper { id: string; label: string; icon: string; desc: string; }
+export interface Helper { 
+  id: string; label: string; icon: string; desc: string; 
+  allowedTouch: string; approach: string;
+}
 
 export const HELPERS: Helper[] = [
-  { id:'mae', label:'Mamãe', icon:'👩', desc:'Minha mãe me ama e me protege.' },
-  { id:'pai', label:'Papai', icon:'👨', desc:'Meu pai está sempre aqui.' },
-  { id:'vovo', label:'Vovó/Vovô', icon:'👵', desc:'Meus avós me cuidam muito.' },
-  { id:'professora', label:'Professora', icon:'👩‍🏫', desc:'Na escola, ela pode ajudar.' },
-  { id:'to', label:'Minha TO', icon:'👩‍⚕️', desc:'A terapeuta é minha amiga segura.' },
-  { id:'medico', label:'Médico', icon:'👨‍⚕️', desc:'O médico cuida da minha saúde.' },
-  { id:'irmao', label:'Irmão/Irmã', icon:'🧑', desc:'Meu irmão ou irmã me ajuda.' },
-  { id:'policia', label:'Polícia', icon:'👮', desc:'A polícia protege as crianças.' },
+  { 
+    id:'mae', label:'Mamãe', icon:'👩', 
+    desc:'Minha mãe me ama e me protege.',
+    allowedTouch:'Pode tocar em quase todo o corpo para carinho. Partes íntimas apenas para limpeza e saúde.',
+    approach:'Sempre avisa antes de dar banho ou ajudar a trocar de roupa.'
+  },
+  { 
+    id:'pai', label:'Papai', icon:'👨', 
+    desc:'Meu pai está sempre aqui.',
+    allowedTouch:'Pode tocar em quase todo o corpo para carinho. Partes íntimas apenas para limpeza e saúde.',
+    approach:'Respeita quando eu digo que quero me trocar sozinho.'
+  },
+  { 
+    id:'vovo', label:'Vovó/Vovô', icon:'👵', 
+    desc:'Meus avós me cuidam muito.',
+    allowedTouch:'Abraços, beijos no rosto e mãos dadas.',
+    approach:'Pede permissão antes de dar um abraço muito apertado.'
+  },
+  { 
+    id:'professora', label:'Professora', icon:'👩‍🏫', 
+    desc:'Na escola, ela pode ajudar.',
+    allowedTouch:'Mãos dadas, ombro ou cabeça para orientação.',
+    approach:'Mantém uma distância respeitosa e fala calmamente.'
+  },
+  { 
+    id:'to', label:'Minha TO', icon:'👩‍⚕️', 
+    desc:'A terapeuta é minha amiga segura.',
+    allowedTouch:'Pode tocar em braços e pernas para exercícios. Partes íntimas nunca durante a sessão.',
+    approach:'Explica cada movimento que vamos fazer juntos.'
+  },
+  { 
+    id:'medico', label:'Médico', icon:'👨‍⚕️', 
+    desc:'O médico cuida da minha saúde.',
+    allowedTouch:'Pode examinar qualquer parte do corpo para saúde, sempre com você e um responsável junto.',
+    approach:'Usa luvas, explica o que vai fazer e pede permissão.'
+  },
 ];
 
 export const AFFIRMATIONS = [

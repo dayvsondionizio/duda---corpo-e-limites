@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Home, Heart, BookOpen, Smile, Shield, Users, Volume2, BrainCircuit, ChevronRight, Settings2, Star, RotateCcw } from 'lucide-react';
+import { Home, Heart, BookOpen, Smile, Shield, Users, Volume2, VolumeX, BrainCircuit, ChevronRight, Settings2, Star, RotateCcw, Lock, Save } from 'lucide-react';
 import { Avatar, AvatarCustomizer } from './Avatar';
 import { AvatarConfig, Section, Difficulty, BODY_PARTS, TOUCH_LEVELS, STORIES, EMOTIONS, HELPERS, AFFIRMATIONS, SKIN_COLORS } from './data';
 import { ModuleCorpo } from './modules/Corpo';
@@ -22,15 +22,18 @@ export interface TherapistSettings {
   visualIntensity: 'low'|'medium'|'high';
   nonVerbalMode: boolean;
   sessionDuration: number;
+  childProfile: string;
+  groqApiKey: string;
 }
 
 const DEFAULT_SETTINGS: TherapistSettings = {
   difficulty: 'basico', audioEnabled: true, visualIntensity: 'medium',
-  nonVerbalMode: false, sessionDuration: 20
+  nonVerbalMode: false, sessionDuration: 20,
+  childProfile: '', groqApiKey: ''
 };
 
-function speak(text: string, enabled: boolean) {
-  if (!enabled || !window.speechSynthesis) return;
+function speak(text: string, enabled: boolean, force: boolean = false) {
+  if ((!enabled && !force) || !window.speechSynthesis) return;
   window.speechSynthesis.cancel();
   const u = new SpeechSynthesisUtterance(text);
   u.lang = 'pt-BR'; u.rate = 0.85; u.pitch = 1.1;
@@ -71,7 +74,23 @@ export default function App() {
   const [notes, setNotes] = useState('');
   const [affirmIdx, setAffirmIdx] = useState(0);
 
-  const say = useCallback((t: string) => speak(t, settings.audioEnabled), [settings.audioEnabled]);
+  const say = useCallback((t: string, force: boolean = false) => {
+    // If we're in the "voz" section, we force the audio regardless of global mute
+    const isVoz = section === 'voz';
+    speak(t, settings.audioEnabled, force || isVoz);
+  }, [settings.audioEnabled, section]);
+
+  const resetApp = () => {
+    if (confirm('Deseja reiniciar o aplicativo? Todo o progresso da sessão será perdido.')) {
+      setPhase('intro');
+      setCompleted([]);
+      setSection('home');
+      setNotes('');
+      setAffirmIdx(0);
+      window.scrollTo(0,0);
+    }
+  };
+
   const complete = useCallback((id: string) => setCompleted(p => p.includes(id) ? p : [...p, id]), []);
   const navigate = useCallback((s: Section) => { setSection(s); window.scrollTo(0,0); }, []);
 
@@ -84,24 +103,28 @@ export default function App() {
         <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-border px-4 py-3">
           <div className="max-w-6xl mx-auto flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-teal rounded-2xl flex items-center justify-center text-white text-lg">🌱</div>
-              <div>
+              <button onClick={resetApp} className="w-10 h-10 bg-teal rounded-2xl flex items-center justify-center text-white text-lg hover:rotate-180 transition-transform duration-500">
+                <RotateCcw size={18}/>
+              </button>
+              <div className="hidden sm:block">
                 <h1 className="text-lg text-teal leading-none">Corpo e Limites</h1>
                 <p className="text-xs text-muted">Crescendo com autonomia</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
               <div className="hidden md:flex items-center gap-1 bg-warm rounded-full px-3 py-1">
-                <span className="text-xs text-muted">Progresso:</span>
+                <span className="text-xs text-muted">Módulos:</span>
                 <span className="text-xs font-bold text-teal">{completed.length}/{HOME_MODULES.length}</span>
               </div>
-              <button onClick={() => { say('Modo terapeuta'); setShowTherapist(p=>!p); }}
-                className="p-2 rounded-2xl bg-warm hover:bg-border transition-colors">
-                <BrainCircuit size={20} className="text-muted" />
+              
+              <button onClick={() => setSettings(s=>({...s, audioEnabled:!s.audioEnabled}))}
+                className={`p-2.5 rounded-2xl transition-all ${settings.audioEnabled ? 'bg-teal/10 text-teal' : 'bg-rose/10 text-rose'}`}>
+                {settings.audioEnabled ? <Volume2 size={20} /> : <VolumeX size={20} />}
               </button>
-              <button onClick={() => say(AFFIRMATIONS[affirmIdx % AFFIRMATIONS.length])}
-                className="p-2 rounded-2xl bg-warm hover:bg-border transition-colors">
-                <Volume2 size={20} className="text-teal" />
+
+              <button onClick={() => { speak('Modo profissional aberto', true); setShowTherapist(p=>!p); }}
+                className="p-2.5 rounded-2xl bg-warm hover:bg-border transition-colors">
+                <BrainCircuit size={20} className="text-muted" />
               </button>
             </div>
           </div>
@@ -304,49 +327,48 @@ export default function App() {
                 </div>
               </section>
 
-              {/* Clinical guidance */}
+              {/* Child Profile */}
               <section className="space-y-4">
-                <h3 className="text-xs uppercase tracking-[0.2em] text-white/30 font-bold">Observação Clínica</h3>
-                <div className="bg-teal/10 border border-teal/20 rounded-2xl p-4">
-                  <p className="text-xs text-white/60 leading-relaxed italic">
-                    {section==='corpo' && 'Observe nomeação de partes, hesitação em zonas privadas e lateralidade.'}
-                    {section==='espaco' && 'Avalie tolerância à proximidade e reconhecimento de desconforto.'}
-                    {section==='semaforo' && 'Observe capacidade de distinguir tipos de toque e assertividade.'}
-                    {section==='historias' && 'Avalie tomada de decisão, empatia e compreensão de consentimento.'}
-                    {section==='emocoes' && 'Observe reconhecimento emocional e sinais corporais relatados.'}
-                    {section==='voz' && 'Avalie assertividade, volume de voz e confiança nas frases.'}
-                    {section==='ajudantes' && 'Observe rede de suporte identificada pela criança.'}
-                    {section==='home' && 'Sessão iniciada. Observe engajamento geral e preferências.'}
-                    {section==='progresso' && 'Revise módulos concluídos e planeje próxima sessão.'}
+                <h3 className="text-xs uppercase tracking-[0.2em] text-white/30 font-bold">Perfil da Criança</h3>
+                <div className="bg-white/5 p-4 rounded-2xl space-y-3">
+                  <p className="text-[10px] text-white/40 leading-relaxed">
+                    Descreva o histórico e as dificuldades específicas para que a IA personalize as histórias e o quiz.
                   </p>
+                  <textarea value={settings.childProfile}
+                    onChange={e => setSettings(s=>({...s, childProfile: e.target.value}))}
+                    className="w-full h-24 bg-white/5 border border-white/10 rounded-xl p-3 text-xs text-white outline-none focus:border-teal/50 transition-colors placeholder:text-white/20 resize-none"
+                    placeholder="Ex: Criança com TEA leve, tem dificuldade em reconhecer espaço pessoal e medo de médicos..."/>
                 </div>
-                <textarea value={notes} onChange={e => setNotes(e.target.value)}
-                  className="w-full h-28 bg-white/5 border border-white/10 rounded-2xl p-4 text-xs text-white outline-none focus:border-teal/50 transition-colors placeholder:text-white/20 resize-none"
-                  placeholder="Registrar observações da sessão..."/>
               </section>
 
-              {/* Progress */}
+              {/* IA Configuration */}
               <section className="space-y-4">
-                <h3 className="text-xs uppercase tracking-[0.2em] text-white/30 font-bold">Progresso da Sessão</h3>
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="bg-white/5 p-4 rounded-2xl">
-                    <p className="text-xs text-white/40">Concluídos</p>
-                    <p className="text-2xl font-bold text-teal">{completed.length}<span className="text-sm text-white/30">/{HOME_MODULES.length}</span></p>
+                <h3 className="text-xs uppercase tracking-[0.2em] text-white/30 font-bold">Configuração de IA (Groq)</h3>
+                <div className="bg-teal/5 border border-teal/20 rounded-2xl p-4 space-y-3">
+                  <div className="flex items-center gap-2 text-teal">
+                    <Lock size={14}/>
+                    <span className="text-[10px] font-bold uppercase">Chave de API</span>
                   </div>
-                  <div className="bg-white/5 p-4 rounded-2xl">
-                    <p className="text-xs text-white/40">Dificuldade</p>
-                    <p className="text-sm font-bold text-teal capitalize">{settings.difficulty}</p>
-                  </div>
+                  <input type="password" value={settings.groqApiKey}
+                    onChange={e => setSettings(s=>({...s, groqApiKey: e.target.value}))}
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-teal/50"
+                    placeholder="gsk_..."/>
+                  <p className="text-[9px] text-white/30">A chave é usada apenas para gerar conteúdo personalizado nesta sessão.</p>
                 </div>
-                <button onClick={() => {
-                  const r = `RELATÓRIO - CORPO E LIMITES\nData: ${new Date().toLocaleDateString('pt-BR')}\nDificuldade: ${settings.difficulty}\nMódulos: ${completed.join(', ')}\nObservações:\n${notes}`;
-                  const a = document.createElement('a');
-                  a.href = URL.createObjectURL(new Blob([r],{type:'text/plain'}));
-                  a.download = `relatorio-${Date.now()}.txt`; a.click();
-                }} className="w-full py-3 border border-white/10 rounded-2xl text-xs text-white/40 hover:bg-white/5 hover:text-white transition-all font-bold uppercase tracking-wider">
-                  Exportar Relatório
-                </button>
               </section>
+
+              {/* Observation (Manual) */}
+              <section className="space-y-4">
+                <h3 className="text-xs uppercase tracking-[0.2em] text-white/30 font-bold">Notas da Sessão</h3>
+                <textarea value={notes} onChange={e => setNotes(e.target.value)}
+                  className="w-full h-20 bg-white/5 border border-white/10 rounded-2xl p-4 text-xs text-white outline-none focus:border-teal/50 transition-colors placeholder:text-white/20 resize-none"
+                  placeholder="Anotações livres sobre a sessão..."/>
+              </section>
+
+              <button onClick={() => { speak('Configurações salvas', true); setShowTherapist(false); }}
+                className="btn-primary w-full py-4 text-xs flex items-center justify-center gap-2">
+                <Save size={14}/> Salvar Configurações
+              </button>
             </div>
           </motion.div>
         )}

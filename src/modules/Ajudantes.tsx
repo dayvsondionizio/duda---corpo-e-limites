@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import { HELPERS } from '../data';
 import type { TherapistSettings } from '../App';
 import type { AvatarConfig } from '../data';
@@ -56,7 +56,7 @@ export function ModuleAjudantes({ say, onComplete }: Props) {
         <p className="text-sm text-muted"><strong className="text-blue">Dica:</strong> Escolha pelo menos 2 adultos em quem você confia. Adultos seguros sempre escutam você!</p>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
         {HELPERS.map(h => (
           <motion.button key={h.id} whileTap={{scale:0.95}}
             onClick={()=>toggle(h.id)}
@@ -66,24 +66,42 @@ export function ModuleAjudantes({ say, onComplete }: Props) {
                 : 'bg-warm border-border hover:border-teal/30 grayscale hover:grayscale-0'
             }`}>
             <span className="text-5xl">{h.icon}</span>
-            <p className="font-bold text-sm text-text text-center">{h.label}</p>
-            {selected.has(h.id) && <span className="text-teal text-xs font-bold">✓ Selecionado</span>}
+            <p className="font-bold text-sm text-text text-center leading-none">{h.label}</p>
           </motion.button>
         ))}
       </div>
 
-      {selected.size > 0 && (
-        <motion.div initial={{opacity:0,y:8}} animate={{opacity:1,y:0}}
-          className="card p-5 bg-teal/5 border border-teal/20 space-y-2">
-          <p className="font-bold text-teal">Sua equipe de segurança:</p>
-          <div className="flex flex-wrap gap-2">
-            {[...selected].map(id => {
-              const h = HELPERS.find(h=>h.id===id)!;
-              return <span key={id} className="px-3 py-1 bg-white border border-teal/30 rounded-full text-sm font-medium text-teal">{h.icon} {h.label}</span>;
-            })}
-          </div>
-        </motion.div>
-      )}
+      <AnimatePresence mode="wait">
+        {[...selected].length > 0 && (
+          <motion.div initial={{opacity:0,y:20}} animate={{opacity:1,y:0}} exit={{opacity:0}}
+            className="space-y-4">
+            <h3 className="text-xl font-bold text-teal">Como eles cuidam de você?</h3>
+            <div className="grid sm:grid-cols-2 gap-4">
+              {[...selected].map(id => {
+                const h = HELPERS.find(x=>x.id===id)!;
+                return (
+                  <div key={id} className="card p-5 space-y-3 bg-white border-teal/20">
+                    <div className="flex items-center gap-3">
+                      <span className="text-3xl">{h.icon}</span>
+                      <p className="font-bold text-teal">{h.label}</p>
+                    </div>
+                    <div className="space-y-2">
+                      <div className="p-3 bg-sage/10 rounded-2xl">
+                        <p className="text-[10px] font-bold text-teal uppercase">👋 Toque Permitido</p>
+                        <p className="text-xs text-muted leading-relaxed">{h.allowedTouch}</p>
+                      </div>
+                      <div className="p-3 bg-peach/10 rounded-2xl">
+                        <p className="text-[10px] font-bold text-peach uppercase">🤝 Como se aproxima</p>
+                        <p className="text-xs text-muted leading-relaxed">{h.approach}</p>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <div className="space-y-3">
         <button onClick={confirm} disabled={selected.size<2}

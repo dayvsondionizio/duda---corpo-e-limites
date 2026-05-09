@@ -1,30 +1,31 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { CheckCircle2, Sparkles } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
 import { Avatar } from '../Avatar';
-import { BODY_PARTS } from '../data';
-import { TherapistSettings } from '../App';
+import { BODY_PARTS, BodyPart } from '../data';
+import type { TherapistSettings } from '../App';
 import type { AvatarConfig } from '../data';
 
 interface Props {
-  settings: TherapistSettings;
-  say: (t: string) => void;
-  onComplete: (id: string) => void;
-  onNavigate: (s: any) => void;
-  avatar: AvatarConfig;
+  settings: TherapistSettings; say:(t:string)=>void;
+  onComplete:(id:string)=>void; onNavigate:(s:any)=>void; avatar:AvatarConfig;
 }
 
 export function ModuleCorpo({ settings, say, onComplete, avatar }: Props) {
-  const [activePart, setActivePart] = useState<string | null>(null);
+  const [activePart, setActivePart] = useState<string|null>(null);
   const [quizMode, setQuizMode] = useState(false);
-  const [quizPart, setQuizPart] = useState<typeof BODY_PARTS[0] | null>(null);
+  const [quizPart, setQuizPart] = useState<BodyPart|null>(null);
   const [quizOptions, setQuizOptions] = useState<string[]>([]);
   const [quizResult, setQuizResult] = useState<'correct'|'wrong'|null>(null);
   const [score, setScore] = useState(0);
   const [rounds, setRounds] = useState(0);
   const [done, setDone] = useState(false);
 
-  const filtered = BODY_PARTS.filter(p => p.difficulty === settings.difficulty);
+  const filtered = BODY_PARTS.filter(p => {
+    if (settings.difficulty === 'basico') return p.difficulty === 'basico';
+    if (settings.difficulty === 'intermediario') return p.difficulty === 'basico' || p.difficulty === 'intermediario';
+    return true;
+  });
   const current = filtered.find(p => p.id === activePart);
 
   function startQuiz() {
@@ -33,7 +34,7 @@ export function ModuleCorpo({ settings, say, onComplete, avatar }: Props) {
   }
 
   function nextQuestion() {
-    const pool = BODY_PARTS.filter(p => p.difficulty === settings.difficulty);
+    const pool = filtered;
     const target = pool[Math.floor(Math.random() * pool.length)];
     const others = pool.filter(p => p.id !== target.id).sort(() => Math.random() - 0.5).slice(0, 3);
     const opts = [...others.map(p => p.label), target.label].sort(() => Math.random() - 0.5);
@@ -89,14 +90,6 @@ export function ModuleCorpo({ settings, say, onComplete, avatar }: Props) {
           </button>
         ))}
       </div>
-      <AnimatePresence>
-        {quizResult && (
-          <motion.div initial={{opacity:0,y:10}} animate={{opacity:1,y:0}} exit={{opacity:0}}
-            className={`p-4 rounded-3xl text-center font-bold ${quizResult==='correct' ? 'bg-green/10 text-green':'bg-rose/10 text-rose'}`}>
-            {quizResult === 'correct' ? '✅ Muito bem! Acertou!' : `❌ Era ${quizPart?.label}! Tente mais!`}
-          </motion.div>
-        )}
-      </AnimatePresence>
     </div>
   );
 
@@ -127,7 +120,7 @@ export function ModuleCorpo({ settings, say, onComplete, avatar }: Props) {
                 <p className="text-muted leading-relaxed">{current.description}</p>
                 {current.isPrivate && (
                   <div className="bg-rose/10 border border-rose/20 rounded-2xl p-3">
-                    <p className="text-sm font-bold text-rose">🔒 Parte privada — coberta pela roupa de banho. É só sua!</p>
+                    <p className="text-sm font-bold text-rose">🔒 Parte privada — fica protegida pela roupa de baixo. É só sua!</p>
                   </div>
                 )}
                 <button onClick={() => say(current.description)} className="text-sm text-teal hover:underline flex items-center gap-1">
@@ -142,12 +135,11 @@ export function ModuleCorpo({ settings, say, onComplete, avatar }: Props) {
             )}
           </AnimatePresence>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 overflow-y-auto max-h-64 pr-2">
             {filtered.map(p => (
               <button key={p.id} onClick={() => { setActivePart(p.id); say(p.label); }}
-                className={`btn-option flex items-center gap-2 ${activePart === p.id ? 'selected' : ''} ${p.isPrivate ? 'border-rose/40 bg-rose/5' : ''}`}>
-                <span>{p.isPrivate ? '🔒' : '👁️'}</span>
-                <span className="font-bold">{p.label}</span>
+                className={`p-3 rounded-2xl border-2 font-bold text-xs transition-all ${activePart === p.id ? 'border-teal bg-teal/10 text-teal' : 'bg-warm border-border text-muted hover:border-teal/30'}`}>
+                {p.label}
               </button>
             ))}
           </div>

@@ -17,124 +17,109 @@ export function Avatar({ config, size='md', highlightPart, onPartClick, animated
   const anim = animated ? 'animate-float' : '';
 
   const partStyle = (id: string) => ({
-    filter: highlightPart === id ? 'drop-shadow(0 0 6px rgba(42,157,143,0.8))' : undefined,
     cursor: onPartClick ? 'pointer' : 'default',
-    transition: 'filter 0.3s',
+    transition: 'all 0.3s ease',
+    filter: highlightPart === id ? 'drop-shadow(0 0 12px rgba(42,157,143,0.9))' : undefined,
   });
 
-  const click = (id: string) => onPartClick?.(id);
+  const click = (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
+    onPartClick?.(id);
+  };
 
   return (
-    <div className={`${anim} flex items-center justify-center`} style={{ width: px, height: px * 1.4 }}>
-      <svg width={px} height={px * 1.4} viewBox="0 0 200 290" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <div className={`${anim} flex items-center justify-center relative`} style={{ width: px, height: px * 1.4 }}>
+      <svg width={px} height={px * 1.4} viewBox="0 0 200 320" fill="none" xmlns="http://www.w3.org/2000/svg" className="overflow-visible">
         {/* Legs */}
-        <g onClick={() => click('pe')} style={partStyle('pe')}>
-          <rect x="80" y="235" width="22" height="50" rx="11" fill={config.skin} />
-          <rect x="108" y="235" width="22" height="50" rx="11" fill={config.skin} />
-          {/* Feet */}
-          <ellipse cx="88" cy="283" rx="15" ry="8" fill={config.skin} />
-          <ellipse cx="119" cy="283" rx="15" ry="8" fill={config.skin} />
+        <g onClick={(e) => click(e, 'pernas')} style={partStyle('pernas')} className={highlightPart === 'pernas' ? 'animate-glow' : ''}>
+          <rect x="80" y="235" width="22" height="60" rx="11" fill={config.skin} />
+          <rect x="108" y="235" width="22" height="60" rx="11" fill={config.skin} />
         </g>
-        {/* Shoes */}
-        <ellipse cx="88" cy="284" rx="16" ry="7" fill={config.clothing} opacity="0.5" />
-        <ellipse cx="119" cy="284" rx="16" ry="7" fill={config.clothing} opacity="0.5" />
+        
+        {/* Coxas */}
+        <g onClick={(e) => click(e, 'coxas')} style={partStyle('coxas')}>
+           <rect x="80" y="225" width="22" height="20" fill={config.skin} opacity="0" />
+           <rect x="108" y="225" width="22" height="20" fill={config.skin} opacity="0" />
+        </g>
 
-        {/* Torso */}
-        <g onClick={() => click('cintura')} style={partStyle('cintura')}>
-          <rect x="68" y="140" width="64" height="100" rx="28" fill={config.clothing} />
+        {/* Feet */}
+        <g onClick={(e) => click(e, 'pe')} style={partStyle('pe')}>
+          <ellipse cx="88" cy="295" rx="15" ry="8" fill={config.skin} />
+          <ellipse cx="119" cy="295" rx="15" ry="8" fill={config.skin} />
+        </g>
+
+        {/* Torso Base */}
+        <rect x="68" y="130" width="64" height="110" rx="28" fill={config.clothing} />
+
+        {/* Peito */}
+        <g onClick={(e) => click(e, 'peito')} style={partStyle('peito')}>
+          <rect x="70" y="135" width="60" height="40" rx="15" fill="transparent" />
+          {highlightPart === 'peito' && <rect x="75" y="140" width="50" height="30" rx="10" fill="rgba(255,255,255,0.2)" />}
+        </g>
+
+        {/* Barriga */}
+        <g onClick={(e) => click(e, 'barriga')} style={partStyle('barriga')}>
+          <rect x="70" y="175" width="60" height="35" rx="10" fill="transparent" />
+          <circle cx="100" cy="195" r="2" fill="rgba(0,0,0,0.1)" />
+        </g>
+
+        {/* Partes Íntimas */}
+        <g onClick={(e) => click(e, 'vulva_penis')} style={partStyle('vulva_penis')}>
+          <rect x="85" y="210" width="30" height="30" rx="15" fill="transparent" />
+          {highlightPart === 'vulva_penis' && (
+             <g>
+               <circle cx="100" cy="222" r="18" fill="rgba(231,111,81,0.2)" stroke="#E76F51" strokeWidth="2" strokeDasharray="4 2" />
+               <text x="100" y="226" textAnchor="middle" fontSize="14">🔒</text>
+             </g>
+          )}
         </g>
 
         {/* Left Arm */}
-        <g onClick={() => click('braco')} style={partStyle('braco')}>
-          <rect x="34" y="140" width="22" height="70" rx="11" fill={config.skin} />
+        <g onClick={(e) => click(e, 'braco')} style={partStyle('braco')}>
+          <rect x="34" y="130" width="22" height="75" rx="11" fill={config.skin} />
         </g>
         {/* Left Hand */}
-        <g onClick={() => click('mao')} style={partStyle('mao')}>
-          <ellipse cx="45" cy="215" rx="13" ry="12" fill={config.skin} />
+        <g onClick={(e) => click(e, 'mao')} style={partStyle('mao')}>
+          <ellipse cx="45" cy="210" rx="13" ry="12" fill={config.skin} />
         </g>
 
         {/* Right Arm */}
-        <g onClick={() => click('braco')} style={partStyle('braco')}>
-          <rect x="144" y="140" width="22" height="70" rx="11" fill={config.skin} />
+        <g onClick={(e) => click(e, 'braco')} style={partStyle('braco')}>
+          <rect x="144" y="130" width="22" height="75" rx="11" fill={config.skin} />
         </g>
         {/* Right Hand */}
-        <g onClick={() => click('mao')} style={partStyle('mao')}>
-          <ellipse cx="155" cy="215" rx="13" ry="12" fill={config.skin} />
+        <g onClick={(e) => click(e, 'mao')} style={partStyle('mao')}>
+          <ellipse cx="155" cy="210" rx="13" ry="12" fill={config.skin} />
         </g>
 
         {/* Neck */}
-        <rect x="88" y="105" width="24" height="40" rx="12" fill={config.skin} />
+        <g onClick={(e) => click(e, 'pescoco')} style={partStyle('pescoco')}>
+          <rect x="88" y="105" width="24" height="30" rx="12" fill={config.skin} />
+        </g>
 
         {/* Head */}
-        <g onClick={() => click('cabeca')} style={partStyle('cabeca')}>
-          <ellipse cx="100" cy="75" rx="45" ry="48" fill={config.skin} />
+        <g onClick={(e) => click(e, 'cabeca')} style={partStyle('cabeca')}>
+          <ellipse cx="100" cy="70" rx="45" ry="48" fill={config.skin} />
         </g>
-
-        {/* Hair */}
-        {config.hair !== 'bald' && (
-          <g onClick={() => click('cabeca')} style={{ cursor: onPartClick ? 'pointer' : 'default' }}>
-            {config.hair === 'short' && (
-              <ellipse cx="100" cy="50" rx="44" ry="26" fill={config.hairColor} />
-            )}
-            {config.hair === 'long' && (
-              <>
-                <ellipse cx="100" cy="48" rx="44" ry="24" fill={config.hairColor} />
-                <rect x="56" y="55" width="14" height="60" rx="7" fill={config.hairColor} />
-                <rect x="130" y="55" width="14" height="60" rx="7" fill={config.hairColor} />
-              </>
-            )}
-            {config.hair === 'curly' && (
-              <>
-                <ellipse cx="100" cy="45" rx="46" ry="28" fill={config.hairColor} />
-                <circle cx="70" cy="45" r="12" fill={config.hairColor} />
-                <circle cx="130" cy="45" r="12" fill={config.hairColor} />
-                <circle cx="100" cy="32" r="12" fill={config.hairColor} />
-              </>
-            )}
-          </g>
-        )}
 
         {/* Eyes */}
-        <g onClick={() => click('olho')} style={partStyle('olho')}>
+        <g onClick={(e) => click(e, 'olho')} style={partStyle('olho')}>
           <ellipse cx="86" cy="72" rx="7" ry="8" fill="white" />
           <circle cx="87" cy="73" r="4" fill="#3D3D3D" />
-          <circle cx="89" cy="71" r="1.5" fill="white" />
           <ellipse cx="114" cy="72" rx="7" ry="8" fill="white" />
           <circle cx="115" cy="73" r="4" fill="#3D3D3D" />
-          <circle cx="117" cy="71" r="1.5" fill="white" />
         </g>
-
-        {/* Eyebrows */}
-        <g onClick={() => click('sobrancelha')} style={partStyle('sobrancelha')}>
-          <path d="M80 63 Q87 59 94 63" stroke="#5C3317" strokeWidth="2.5" strokeLinecap="round" fill="none" />
-          <path d="M106 63 Q113 59 120 63" stroke="#5C3317" strokeWidth="2.5" strokeLinecap="round" fill="none" />
-        </g>
-
-        {/* Nose */}
-        <ellipse cx="100" cy="84" rx="5" ry="3.5" fill={config.skin} stroke="#C07D50" strokeWidth="0.8" opacity="0.5" />
 
         {/* Mouth */}
-        <g onClick={() => click('boca')} style={partStyle('boca')}>
+        <g onClick={(e) => click(e, 'boca')} style={partStyle('boca')}>
           <path d="M90 93 Q100 101 110 93" stroke="#C07D50" strokeWidth="2.5" strokeLinecap="round" fill="none" />
         </g>
 
-        {/* Cheeks */}
-        <ellipse cx="74" cy="87" rx="10" ry="7" fill="#FDDCB5" opacity="0.5" />
-        <ellipse cx="126" cy="87" rx="10" ry="7" fill="#FDDCB5" opacity="0.5" />
-
         {/* Shoulder indicators */}
-        <g onClick={() => click('ombro')} style={partStyle('ombro')}>
-          <ellipse cx="68" cy="138" rx="16" ry="12" fill={config.clothing} opacity="0.8" />
-          <ellipse cx="132" cy="138" rx="16" ry="12" fill={config.clothing} opacity="0.8" />
+        <g onClick={(e) => click(e, 'ombro')} style={partStyle('ombro')}>
+          <circle cx="68" cy="135" r="12" fill={config.clothing} opacity="0.5" />
+          <circle cx="132" cy="135" r="12" fill={config.clothing} opacity="0.5" />
         </g>
-
-        {/* Private zone indicator (subtle dots) */}
-        {highlightPart === 'zona_intima' && (
-          <g>
-            <ellipse cx="100" cy="200" rx="30" ry="25" fill="rgba(231,111,81,0.15)" stroke="#E76F51" strokeWidth="2" strokeDasharray="4 2" />
-            <text x="100" y="204" textAnchor="middle" fontSize="12" fill="#E76F51">🔒</text>
-          </g>
-        )}
       </svg>
     </div>
   );

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ChevronRight, ChevronLeft, Sparkles, Loader2 } from 'lucide-react';
-import { STORIES, Story, AvatarConfig } from '../data';
+import { STORIES, Story, AvatarConfig, HELP_EMOJIS } from '../data';
 import { generateContent } from '../services/GroqService';
 import type { TherapistSettings } from '../App';
 
@@ -158,12 +158,32 @@ export function ModuleHistorias({ say, onComplete, settings }: Props) {
         <motion.div key={sceneIdx} initial={{opacity:0,x:40}} animate={{opacity:1,x:0}} exit={{opacity:0,x:-40}}
           className="space-y-6">
 
-          {/* Scene card */}
-          <div className="card p-8 space-y-4 min-h-44">
-            {scene.emoji && <span className="text-5xl block">{scene.emoji}</span>}
-            {scene.speaker && <p className="text-xs font-bold text-teal uppercase tracking-wider">{scene.speaker}:</p>}
-            <p className="text-2xl text-text leading-relaxed font-medium">"{scene.text}"</p>
-            <button onClick={()=>say(scene.text)} className="text-sm text-teal hover:underline">🔊 Ouvir</button>
+          {/* Visual Scene Animation Box */}
+          <div className="relative h-64 bg-gradient-to-b from-teal/10 to-cream rounded-4xl flex items-center justify-center overflow-hidden border-2 border-white/50 shadow-inner">
+             {/* Background elements */}
+             <motion.span animate={{y: [0,-20,0], opacity: [0.3,0.6,0.3]}} transition={{duration:4, repeat:Infinity}} className="absolute top-10 left-10 text-3xl opacity-20">☁️</motion.span>
+             <motion.span animate={{y: [0,20,0], opacity: [0.3,0.6,0.3]}} transition={{duration:5, repeat:Infinity}} className="absolute top-20 right-10 text-3xl opacity-20">✨</motion.span>
+             <motion.span animate={{scale: [1,1.2,1]}} transition={{duration:3, repeat:Infinity}} className="absolute bottom-10 left-1/4 text-2xl opacity-10">🌱</motion.span>
+             
+             {/* Main emoji / character */}
+             <motion.div key={sceneIdx} initial={{scale:0, rotate:-20}} animate={{scale:1, rotate:0}} transition={{type:'spring', damping:12}}
+               className="text-8xl filter drop-shadow-xl z-10">
+               {scene.emoji || '📖'}
+             </motion.div>
+
+             {/* Dynamic feedback elements */}
+             {picked === true && (
+                <motion.div initial={{scale:0}} animate={{scale:1.5}} className="absolute text-6xl">🎉</motion.div>
+             )}
+          </div>
+
+          {/* Text card */}
+          <div className="card p-8 space-y-4 shadow-xl">
+            {scene.speaker && <p className="text-xs font-bold text-teal uppercase tracking-[0.2em]">{scene.speaker}:</p>}
+            <p className="text-2xl text-text leading-relaxed font-bold">"{scene.text}"</p>
+            <button onClick={()=>say(scene.text)} className="btn-ghost px-4 py-2 text-xs flex items-center gap-2">
+               🔊 Ouvir Narrador
+            </button>
           </div>
 
           {/* Question */}

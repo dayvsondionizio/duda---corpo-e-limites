@@ -2,7 +2,7 @@ import React, { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Home, Heart, BookOpen, Smile, Shield, Users, Volume2, VolumeX, BrainCircuit, ChevronRight, Settings2, Star, RotateCcw, Lock, Save, CheckCircle2 } from 'lucide-react';
 import { Avatar, AvatarCustomizer } from './Avatar';
-import { AvatarConfig, Section, Difficulty, BODY_PARTS, TOUCH_LEVELS, STORIES, EMOTIONS, HELPERS, Helper, AFFIRMATIONS, SKIN_COLORS } from './data';
+import { AvatarConfig, Section, Difficulty, BODY_PARTS, TOUCH_LEVELS, STORIES, EMOTIONS, HELPERS, Helper, AFFIRMATIONS, SKIN_COLORS, DEFAULT_AVATAR, HELP_EMOJIS } from './data';
 import { ModuleCorpo } from './modules/Corpo';
 import { ModuleEspaco } from './modules/Espaco';
 import { ModuleSemaforo } from './modules/Semaforo';
@@ -11,10 +11,6 @@ import { ModuleEmocoes } from './modules/Emocoes';
 import { ModuleAjudantes } from './modules/Ajudantes';
 import { ModuleVoz } from './modules/Voz';
 import { ModuleProgresso } from './modules/Progresso';
-
-const DEFAULT_AVATAR: AvatarConfig = {
-  skin: SKIN_COLORS[1], hair: 'short', hairColor: '#8B4513', clothing: '#2A9D8F'
-};
 
 export interface TherapistSettings {
   difficulty: Difficulty;
@@ -386,10 +382,29 @@ export default function App() {
                       <input id="helper-name" className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs text-white" placeholder="Ex: Tio João"/>
                     </div>
                     <div className="space-y-1">
-                      <label className="text-[10px] text-white/40 uppercase">Emoji</label>
-                      <input id="helper-emoji" className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs text-white text-center" placeholder="🧑"/>
+                      <label className="text-[10px] text-white/40 uppercase">Ícone</label>
+                      <div className="flex items-center justify-center w-full bg-white/5 border border-white/10 rounded-xl h-[34px] text-lg">
+                         <span id="helper-emoji-display">🧑</span>
+                         <input type="hidden" id="helper-emoji-val" defaultValue="🧑" />
+                      </div>
                     </div>
                   </div>
+
+                  <div className="space-y-2">
+                    <label className="text-[10px] text-white/40 uppercase">Escolha um EMOJI</label>
+                    <div className="grid grid-cols-6 gap-2 p-2 bg-white/5 rounded-xl max-h-32 overflow-y-auto custom-scrollbar">
+                      {['👩','👨','👵','👴','🧑‍🏫','👨‍🏫','👩‍⚕️','👨‍⚕️','🧑‍🦰','🧑‍🍼','🧑‍🤝‍🧑','👮','👩‍🚒','🦸','🦹','👼','😺','🐶','🐹','🐰','🦁','🦄'].map(e => (
+                        <button key={e} onClick={() => {
+                          const display = document.getElementById('helper-emoji-display');
+                          const input = document.getElementById('helper-emoji-val') as HTMLInputElement;
+                          if(display && input) { display.innerText = e; input.value = e; }
+                        }} className="text-xl hover:scale-125 transition-transform p-1">
+                          {e}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
                   <div className="space-y-1">
                     <label className="text-[10px] text-white/40 uppercase">Toque Permitido</label>
                     <textarea id="helper-touch" className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-xs text-white resize-none h-16" placeholder="Onde e como pode tocar..."/>
@@ -400,18 +415,19 @@ export default function App() {
                   </div>
                   <button onClick={() => {
                     const name = (document.getElementById('helper-name') as HTMLInputElement).value;
-                    const emoji = (document.getElementById('helper-emoji') as HTMLInputElement).value;
+                    const emoji = (document.getElementById('helper-emoji-val') as HTMLInputElement).value;
                     const touch = (document.getElementById('helper-touch') as HTMLTextAreaElement).value;
                     const approach = (document.getElementById('helper-approach') as HTMLTextAreaElement).value;
                     if(name && emoji) {
                       addCustomHelper({ id: Date.now().toString(), label: name, icon: emoji, desc: 'Ajudante personalizado.', allowedTouch: touch, approach: approach });
                       (document.getElementById('helper-name') as HTMLInputElement).value = '';
-                      (document.getElementById('helper-emoji') as HTMLInputElement).value = '';
+                      (document.getElementById('helper-emoji-display')!).innerText = '🧑';
+                      (document.getElementById('helper-emoji-val') as HTMLInputElement).value = '🧑';
                       (document.getElementById('helper-touch') as HTMLTextAreaElement).value = '';
                       (document.getElementById('helper-approach') as HTMLTextAreaElement).value = '';
                       speak('Novo ajudante criado!', true);
                     }
-                  }} className="w-full py-3 bg-white/10 hover:bg-white/20 rounded-xl text-xs text-white font-bold transition-all">
+                  }} className="w-full py-3 bg-teal hover:bg-teal-dark rounded-xl text-xs text-white font-bold transition-all shadow-lg">
                     + Adicionar Ajudante
                   </button>
                 </div>

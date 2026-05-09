@@ -9,7 +9,6 @@ import { ModuleSemaforo } from './modules/Semaforo';
 import { ModuleHistorias } from './modules/Historias';
 import { ModuleEmocoes } from './modules/Emocoes';
 import { ModuleAjudantes } from './modules/Ajudantes';
-import { ModuleVoz } from './modules/Voz';
 import { ModuleProgresso } from './modules/Progresso';
 
 export interface TherapistSettings {
@@ -30,11 +29,13 @@ const DEFAULT_SETTINGS: TherapistSettings = {
   childProfile: '', groqApiKey: G_K + G_S
 };
 
-function speak(text: string, enabled: boolean, force: boolean = false) {
+function speak(text: string, enabled: boolean, gender: string, force: boolean = false) {
   if ((!enabled && !force) || !window.speechSynthesis) return;
   window.speechSynthesis.cancel();
   const u = new SpeechSynthesisUtterance(text);
-  u.lang = 'pt-BR'; u.rate = 0.85; u.pitch = 1.1;
+  u.lang = 'pt-BR'; 
+  u.rate = 0.9;
+  u.pitch = gender === 'menina' ? 1.35 : (gender === 'menino' ? 1.15 : 1.25);
   window.speechSynthesis.speak(u);
 }
 
@@ -45,7 +46,6 @@ const NAV_ITEMS = [
   { id: 'semaforo',  icon: Heart,    label: 'Semáforo' },
   { id: 'historias', icon: BookOpen, label: 'Histórias' },
   { id: 'emocoes',   icon: Smile,    label: 'Emoções' },
-  { id: 'voz',       icon: Volume2,  label: 'Minha Voz' },
   { id: 'ajudantes', icon: Users,    label: 'Ajudantes' },
   { id: 'progresso', icon: Star,     label: 'Conquistas' },
 ];
@@ -56,14 +56,13 @@ const HOME_MODULES = [
   { id:'semaforo',  emoji:'🚦',  title:'Semáforo',      desc:'Tipos de toque',           color:'bg-green/10',  border:'border-green/30' },
   { id:'historias', emoji:'📖',  title:'Histórias',     desc:'Aprendo com histórias',    color:'bg-yellow/10', border:'border-yellow/30' },
   { id:'emocoes',   emoji:'💛',  title:'Emoções',       desc:'Reconheço meus sentimentos',color:'bg-peach/10', border:'border-peach/30' },
-  { id:'voz',       emoji:'📢',  title:'Minha Voz',     desc:'Posso dizer não!',         color:'bg-purple/10', border:'border-purple/30' },
   { id:'ajudantes', emoji:'🤝',  title:'Ajudantes',     desc:'Adultos seguros',          color:'bg-rose/10',   border:'border-rose/30' },
   { id:'progresso', emoji:'⭐',  title:'Conquistas',    desc:'Meu progresso',            color:'bg-sage/10',   border:'border-sage/30' },
 ];
 
 export default function App() {
   const [resetKey, setResetKey] = useState(0);
-  const [phase, setPhase] = useState<'intro'|'customize'|'app'>('intro');
+  const [phase, setPhase] = useState<'setup'|'intro'|'customize'|'app'>('setup');
   const [gender, setGender] = useState<string>('');
   const [avatar, setAvatar] = useState<AvatarConfig>(DEFAULT_AVATAR);
   const [section, setSection] = useState<Section>('home');
@@ -75,14 +74,13 @@ export default function App() {
   const [customHelpers, setCustomHelpers] = useState<Helper[]>([]);
 
   const say = useCallback((t: string, force: boolean = false) => {
-    const isVoz = section === 'voz';
-    speak(t, settings.audioEnabled, force || isVoz);
-  }, [settings.audioEnabled, section]);
+    speak(t, settings.audioEnabled, gender, force);
+  }, [settings.audioEnabled, gender]);
 
   const resetApp = () => {
     if (confirm('Deseja reiniciar o aplicativo? Todo o progresso da sessão será perdido.')) {
       setResetKey(prev => prev + 1);
-      setPhase('intro');
+      setPhase('setup');
       setCompleted([]);
       setSection('home');
       setNotes('');
@@ -125,7 +123,7 @@ export default function App() {
                 {settings.audioEnabled ? <Volume2 size={20} /> : <VolumeX size={20} />}
               </button>
 
-              <button onClick={() => { speak('Modo profissional aberto', true); setShowTherapist(p=>!p); }}
+              <button onClick={() => { say('Modo profissional aberto', true); setShowTherapist(p=>!p); }}
                 className="p-2.5 rounded-2xl bg-warm hover:bg-border transition-colors">
                 <BrainCircuit size={20} className="text-muted" />
               </button>
@@ -157,6 +155,53 @@ export default function App() {
         <div className="flex-1 overflow-y-auto">
           <div className="max-w-4xl mx-auto px-4 py-4 md:py-8 pb-32">
             <AnimatePresence mode="wait">
+
+              {/* ── SETUP (Professional) ── */}
+              {phase === 'setup' && (
+                <motion.div key="setup" initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}}
+                  className="max-w-2xl mx-auto space-y-8 py-12">
+                  <div className="text-center space-y-2">
+                    <div className="text-5xl">🧠</div>
+                    <h2 className="text-3xl font-bold text-teal">Configuração da Sessão</h2>
+                    <p className="text-muted">Terapeuta, configure os detalhes antes de começar com a criança.</p>
+                  </div>
+
+                  <div className="card p-8 space-y-6">
+                    <div className="space-y-2">
+                      <label className="text-sm font-bold text-muted uppercase">Perfil da Criança</label>
+                      <textarea value={settings.childProfile} 
+                        onChange={e => setSettings(s=>({...s, childProfile: e.target.value}))}
+                        className="w-full h-32 p-4 rounded-2xl bg-warm/50 border border-border outline-none focus:border-teal transition-all"
+                        placeholder="Ex: Criança de 6 anos com TEA leve, foco em limites corporais e reconhecimento de emoções..."/>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <label className="text-sm font-bold text-muted uppercase">Dificuldade</label>
+                        <select value={settings.difficulty} 
+                          onChange={e => setSettings(s=>({...s, difficulty: e.target.value as Difficulty}))}
+                          className="w-full p-3 rounded-xl bg-warm/50 border border-border">
+                          <option value="basico">Básico</option>
+                          <option value="intermediario">Intermediário</option>
+                          <option value="avancado">Avançado</option>
+                        </select>
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-sm font-bold text-muted uppercase">Áudio (Voz do App)</label>
+                        <button onClick={() => { setSettings(s=>({...s, audioEnabled: !s.audioEnabled})); say(!settings.audioEnabled ? 'Áudio ligado' : 'Áudio desligado', true); }}
+                          className={`w-full p-3 rounded-xl border-2 transition-all font-bold ${settings.audioEnabled ? 'border-teal bg-teal/5 text-teal' : 'border-rose/20 bg-rose/5 text-rose'}`}>
+                          {settings.audioEnabled ? '🔊 Ligado' : '🔇 Desligado'}
+                        </button>
+                      </div>
+                    </div>
+
+                    <button onClick={() => setPhase('intro')}
+                      className="btn-primary w-full py-4 text-lg">
+                      Salvar e Iniciar Sessão 🚀
+                    </button>
+                  </div>
+                </motion.div>
+              )}
 
               {/* ── INTRO ── */}
               {phase === 'intro' && (
@@ -243,7 +288,6 @@ export default function App() {
                   {section === 'semaforo'  && <ModuleSemaforo  {...sharedProps} />}
                   {section === 'historias' && <ModuleHistorias {...sharedProps} />}
                   {section === 'emocoes'   && <ModuleEmocoes   {...sharedProps} />}
-                  {section === 'voz'       && <ModuleVoz       {...sharedProps} />}
                   {section === 'ajudantes' && <ModuleAjudantes {...sharedProps} customHelpers={customHelpers} />}
                   {section === 'progresso' && <ModuleProgresso {...sharedProps} completed={completed} totalModules={HOME_MODULES.length} />}
                 </motion.div>
@@ -365,7 +409,7 @@ export default function App() {
                   placeholder="Anotações livres sobre a sessão..."/>
               </section>
 
-              <button onClick={() => { speak('Configurações salvas', true); setShowTherapist(false); }}
+              <button onClick={() => { say('Configurações salvas', true); setShowTherapist(false); }}
                 className="btn-primary w-full py-4 text-xs flex items-center justify-center gap-2">
                 <Save size={14}/> Salvar Configurações
               </button>
@@ -425,7 +469,7 @@ export default function App() {
                       (document.getElementById('helper-emoji-val') as HTMLInputElement).value = '🧑';
                       (document.getElementById('helper-touch') as HTMLTextAreaElement).value = '';
                       (document.getElementById('helper-approach') as HTMLTextAreaElement).value = '';
-                      speak('Novo ajudante criado!', true);
+                      say('Novo ajudante criado!', true);
                     }
                   }} className="w-full py-3 bg-teal hover:bg-teal-dark rounded-xl text-xs text-white font-bold transition-all shadow-lg">
                     + Adicionar Ajudante

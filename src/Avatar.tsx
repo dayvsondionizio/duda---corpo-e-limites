@@ -101,32 +101,43 @@ export function Avatar({ config, size='md', highlightPart, onPartClick, animated
           <rect x="88" y="105" width="24" height="35" rx="12" fill={config.skin} />
         </g>
 
+        {/* Back Hair */}
+        {config.hair !== 'bald' && (
+          <g style={{ pointerEvents: 'none' }}>
+            {config.hair === 'long' && (
+               <path d="M55 70 L55 160 Q100 145 145 160 L145 70 Q145 20 100 20 Q55 20 55 70" fill={config.hairColor} />
+            )}
+            {config.hair === 'curly' && (
+               <g fill={config.hairColor}>
+                 <circle cx="100" cy="30" r="25" />
+                 <circle cx="70" cy="45" r="22" />
+                 <circle cx="130" cy="45" r="22" />
+               </g>
+            )}
+          </g>
+        )}
+
         {/* Head Base */}
         <g onClick={(e) => click(e, 'cabeca')} style={partStyle('cabeca')}>
           <ellipse cx="100" cy="70" rx="42" ry="46" fill={config.skin} />
         </g>
 
-        {/* Hair Styles */}
+        {/* Front Hair / Fringe */}
         {config.hair !== 'bald' && (
           <g style={{ pointerEvents: 'none' }}>
             {config.hair === 'short' && (
-              <path d="M60 70 Q60 25 100 25 Q140 25 140 70 Q100 55 60 70" fill={config.hairColor} />
+              <path d="M58 70 Q58 20 100 20 Q142 20 142 70 Q100 50 58 70" fill={config.hairColor} />
             )}
             {config.hair === 'long' && (
-              <>
-                <path d="M58 70 Q58 20 100 20 Q142 20 142 70 L145 150 Q100 135 55 150 Z" fill={config.hairColor} />
-                <path d="M60 70 Q100 50 140 70" fill="rgba(0,0,0,0.1)" />
-              </>
+              <path d="M58 70 Q58 20 100 20 Q142 20 142 70 Q120 60 100 65 Q80 60 58 70" fill={config.hairColor} />
             )}
             {config.hair === 'curly' && (
               <g fill={config.hairColor}>
-                <circle cx="100" cy="30" r="22" />
-                <circle cx="75" cy="40" r="20" />
-                <circle cx="125" cy="40" r="20" />
-                <circle cx="65" cy="65" r="18" />
-                <circle cx="135" cy="65" r="18" />
-                <circle cx="70" cy="85" r="15" />
-                <circle cx="130" cy="85" r="15" />
+                <circle cx="60" cy="70" r="18" />
+                <circle cx="140" cy="70" r="18" />
+                <circle cx="70" cy="95" r="15" />
+                <circle cx="130" cy="95" r="15" />
+                <path d="M65 50 Q100 35 135 50" stroke={config.hairColor} strokeWidth="10" strokeLinecap="round" />
               </g>
             )}
           </g>

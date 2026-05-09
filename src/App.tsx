@@ -9,6 +9,7 @@ import { ModuleSemaforo } from './modules/Semaforo';
 import { ModuleHistorias } from './modules/Historias';
 import { ModuleEmocoes } from './modules/Emocoes';
 import { ModuleAjudantes } from './modules/Ajudantes';
+import { ModuleVoz } from './modules/Voz';
 import { ModuleProgresso } from './modules/Progresso';
 
 export interface TherapistSettings {
@@ -46,6 +47,7 @@ const NAV_ITEMS = [
   { id: 'semaforo',  icon: Heart,    label: 'Semáforo' },
   { id: 'historias', icon: BookOpen, label: 'Histórias' },
   { id: 'emocoes',   icon: Smile,    label: 'Emoções' },
+  { id: 'voz',       icon: Volume2,  label: 'Minha Voz' },
   { id: 'ajudantes', icon: Users,    label: 'Ajudantes' },
   { id: 'progresso', icon: Star,     label: 'Conquistas' },
 ];
@@ -56,6 +58,7 @@ const HOME_MODULES = [
   { id:'semaforo',  emoji:'🚦',  title:'Semáforo',      desc:'Tipos de toque',           color:'bg-green/10',  border:'border-green/30' },
   { id:'historias', emoji:'📖',  title:'Histórias',     desc:'Aprendo com histórias',    color:'bg-yellow/10', border:'border-yellow/30' },
   { id:'emocoes',   emoji:'💛',  title:'Emoções',       desc:'Reconheço meus sentimentos',color:'bg-peach/10', border:'border-peach/30' },
+  { id:'voz',       emoji:'📢',  title:'Minha Voz',     desc:'Posso dizer não!',         color:'bg-purple/10', border:'border-purple/30' },
   { id:'ajudantes', emoji:'🤝',  title:'Ajudantes',     desc:'Adultos seguros',          color:'bg-rose/10',   border:'border-rose/30' },
   { id:'progresso', emoji:'⭐',  title:'Conquistas',    desc:'Meu progresso',            color:'bg-sage/10',   border:'border-sage/30' },
 ];
@@ -352,7 +355,8 @@ export default function App() {
                   {section === 'semaforo'  && <ModuleSemaforo  {...sharedProps} />}
                   {section === 'historias' && <ModuleHistorias {...sharedProps} />}
                   {section === 'emocoes'   && <ModuleEmocoes   {...sharedProps} />}
-                  {section === 'ajudantes' && <ModuleAjudantes {...sharedProps} customHelpers={customHelpers} />}
+                  {section === 'voz'       && <ModuleVoz       {...sharedProps} />}
+                  {section === 'ajudantes' && <ModuleAjudantes {...sharedProps} />}
                   {section === 'progresso' && <ModuleProgresso {...sharedProps} completed={completed} totalModules={HOME_MODULES.length} />}
                 </motion.div>
               )}

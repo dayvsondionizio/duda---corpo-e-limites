@@ -28,7 +28,7 @@ export const DEFAULT_AVATAR: AvatarConfig = {
 
 export interface BodyPart {
   id: string; label: string; difficulty: Difficulty;
-  description: string; isPrivate?: boolean;
+  description: string; isPrivate?: boolean; isBack?: boolean;
   svgX: number; svgY: number;
 }
 
@@ -52,8 +52,50 @@ export const BODY_PARTS: BodyPart[] = [
   { id:'joelho', label:'Joelho', difficulty:'intermediario', description:'A dobrinha da perna.', svgX:90, svgY:285 },
   { id:'tornozelo', label:'Tornozelo', difficulty:'avancado', description:'Perto do pé.', svgX:90, svgY:310 },
   { id:'pe', label:'Pé', difficulty:'basico', description:'Nos leva para todos os lugares.', svgX:95, svgY:320 },
-  { id:'costas', label:'Costas', difficulty:'intermediario', description:'A parte de trás do corpo.', svgX:145, svgY:155 },
-  { id:'bum_bum', label:'Bumbum', difficulty:'basico', description:'Parte de trás que usamos para sentar. É uma parte privada.', isPrivate:true, svgX:100, svgY:250 },
+  { id:'costas', label:'Costas', difficulty:'intermediario', description:'A parte de trás do corpo.', isBack:true, svgX:145, svgY:155 },
+  { id:'bum_bum', label:'Bumbum', difficulty:'basico', description:'Parte de trás que usamos para sentar. É uma parte privada.', isPrivate:true, isBack:true, svgX:100, svgY:250 },
+];
+
+export const AAC_CATEGORIES = [
+  { id:'basic', label:'Básico', icon:'💬', items:[
+    { id:'sim', label:'Sim', icon:'✅' },
+    { id:'nao', label:'Não', icon:'❌' },
+    { id:'oi', label:'Oi', icon:'👋' },
+    { id:'tchau', label:'Tchau', icon:'🙋' },
+    { id:'por favor', label:'Por favor', icon:'🙏' },
+    { id:'obrigado', label:'Obrigado', icon:'🤝' },
+  ]},
+  { id:'needs', label:'Necessidades', icon:'🆘', items:[
+    { id:'agua', label:'Água', icon:'💧' },
+    { id:'comida', label:'Comida', icon:'🍎' },
+    { id:'banheiro', label:'Banheiro', icon:'🚽' },
+    { id:'dor', label:'Dor', icon:'🤕' },
+    { id:'ajuda', label:'Ajuda', icon:'🆘' },
+    { id:'descansar', label:'Descansar', icon:'🛌' },
+  ]},
+  { id:'emotions', label:'Emoções', icon:'😊', items:[
+    { id:'feliz', label:'Feliz', icon:'😊' },
+    { id:'triste', label:'Triste', icon:'😢' },
+    { id:'bravo', label:'Bravo', icon:'😠' },
+    { id:'medo', label:'Medo', icon:'😨' },
+    { id:'assustado', label:'Assustado', icon:'😱' },
+    { id:'calmo', label:'Calmo', icon:'😌' },
+  ]},
+  { id:'actions', label:'Ações', icon:'🏃', items:[
+    { id:'brincar', label:'Brincar', icon:'🧸' },
+    { id:'estudar', label:'Estudar', icon:'📚' },
+    { id:'ouvir', label:'Ouvir', icon:'👂' },
+    { id:'ver', label:'Ver', icon:'👁️' },
+    { id:'falar', label:'Falar', icon:'🗣️' },
+    { id:'parar', label:'Parar', icon:'🛑' },
+  ]},
+  { id:'numbers', label:'Números', icon:'🔢', items:[
+    { id:'1', label:'1', icon:'1️⃣' },
+    { id:'2', label:'2', icon:'2️⃣' },
+    { id:'3', label:'3', icon:'3️⃣' },
+    { id:'4', label:'4', icon:'4️⃣' },
+    { id:'5', label:'5', icon:'5️⃣' },
+  ]}
 ];
 
 export interface TouchLevel {

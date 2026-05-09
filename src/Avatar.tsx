@@ -9,11 +9,12 @@ interface AvatarProps {
   highlightPart?: string;
   onPartClick?: (id: string) => void;
   animated?: boolean;
+  backView?: boolean;
 }
 
 const SIZE_MAP = { sm:120, md:180, lg:240, xl:320 };
 
-export function Avatar({ config, size='md', highlightPart, onPartClick, animated }: AvatarProps) {
+export function Avatar({ config, size='md', highlightPart, onPartClick, animated, backView }: AvatarProps) {
   const px = SIZE_MAP[size];
   const anim = animated ? 'animate-float' : '';
 
@@ -23,12 +24,15 @@ export function Avatar({ config, size='md', highlightPart, onPartClick, animated
   const partStyle = (id: string) => ({
     cursor: onPartClick ? 'pointer' : 'default',
     transition: 'all 0.3s ease',
+    opacity: highlightPart && highlightPart !== id ? 0.4 : 1,
   });
 
   const click = (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
     onPartClick?.(id);
   };
+
+  const hairColor = config.hairColor;
 
   return (
     <div className={`${anim} flex items-center justify-center relative`} style={{ width: px, height: px * 1.4 }}>
@@ -52,6 +56,14 @@ export function Avatar({ config, size='md', highlightPart, onPartClick, animated
             <rect x="70" y="215" width="60" height="30" rx="10" fill={config.clothing} filter="brightness(0.9)" />
           )}
         </g>
+
+        {/* Bumbum (Only in Back View) */}
+        {backView && (
+          <g onClick={(e) => click(e, 'bumbum')} style={partStyle('bumbum')}>
+            <circle cx="85" cy="225" r="14" fill={config.clothing} filter="brightness(0.8)" />
+            <circle cx="115" cy="225" r="14" fill={config.clothing} filter="brightness(0.8)" />
+          </g>
+        )}
 
         {/* Shoes / Sandals */}
         <g onClick={(e) => click(e, 'pe')} style={partStyle('pe')}>
@@ -101,18 +113,25 @@ export function Avatar({ config, size='md', highlightPart, onPartClick, animated
           <rect x="88" y="105" width="24" height="35" rx="12" fill={config.skin} />
         </g>
 
-        {/* Back Hair */}
+        {/* Back Hair (Behind Head) */}
         {config.hair !== 'bald' && (
           <g style={{ pointerEvents: 'none' }}>
             {config.hair === 'long' && (
-               <path d="M55 70 L55 160 Q100 145 145 160 L145 70 Q145 20 100 20 Q55 20 55 70" fill={config.hairColor} />
+               <path d="M55 70 L55 165 Q100 150 145 165 L145 70 Q145 20 100 20 Q55 20 55 70" fill={hairColor} />
             )}
             {config.hair === 'curly' && (
-               <g fill={config.hairColor}>
-                 <circle cx="100" cy="30" r="25" />
-                 <circle cx="70" cy="45" r="22" />
-                 <circle cx="130" cy="45" r="22" />
+               <g fill={hairColor}>
+                 <circle cx="100" cy="30" r="35" />
+                 <circle cx="75" cy="40" r="30" />
+                 <circle cx="125" cy="40" r="30" />
+                 <circle cx="65" cy="70" r="25" />
+                 <circle cx="135" cy="70" r="25" />
+                 <circle cx="75" cy="100" r="22" />
+                 <circle cx="125" cy="100" r="22" />
                </g>
+            )}
+            {config.hair === 'short' && (
+               <path d="M58 70 Q58 20 100 20 Q142 20 142 70 L142 90 Q100 80 58 90 Z" fill={hairColor} />
             )}
           </g>
         )}
@@ -122,175 +141,193 @@ export function Avatar({ config, size='md', highlightPart, onPartClick, animated
           <ellipse cx="100" cy="70" rx="42" ry="46" fill={config.skin} />
         </g>
 
-        {/* Front Hair / Fringe */}
-        {config.hair !== 'bald' && (
+        {/* Front Hair (On top of face) */}
+        {!backView && config.hair !== 'bald' && (
           <g style={{ pointerEvents: 'none' }}>
             {config.hair === 'short' && (
-              <path d="M58 70 Q58 20 100 20 Q142 20 142 70 Q100 50 58 70" fill={config.hairColor} />
+              <path d="M58 70 Q58 20 100 20 Q142 20 142 70 Q100 50 58 70" fill={hairColor} />
             )}
             {config.hair === 'long' && (
-              <path d="M58 70 Q58 20 100 20 Q142 20 142 70 Q120 60 100 65 Q80 60 58 70" fill={config.hairColor} />
+              <path d="M58 70 Q58 20 100 20 Q142 20 142 70 Q120 60 100 65 Q80 60 58 70" fill={hairColor} />
             )}
             {config.hair === 'curly' && (
-              <g fill={config.hairColor}>
-                <circle cx="60" cy="70" r="18" />
-                <circle cx="140" cy="70" r="18" />
-                <circle cx="70" cy="95" r="15" />
-                <circle cx="130" cy="95" r="15" />
-                <path d="M65 50 Q100 35 135 50" stroke={config.hairColor} strokeWidth="10" strokeLinecap="round" />
+              <g fill={hairColor}>
+                <circle cx="70" cy="35" r="15" />
+                <circle cx="100" cy="25" r="15" />
+                <circle cx="130" cy="35" r="15" />
+                <circle cx="65" cy="60" r="12" />
+                <circle cx="135" cy="60" r="12" />
               </g>
             )}
           </g>
         )}
 
-        {/* Eyes */}
-        <g onClick={(e) => click(e, 'olho')} style={partStyle('olho')}>
-          <ellipse cx="86" cy="72" rx="7" ry="8" fill="white" />
-          <circle cx="87" cy="73" r="4" fill="#3D3D3D" />
-          <ellipse cx="114" cy="72" rx="7" ry="8" fill="white" />
-          <circle cx="115" cy="73" r="4" fill="#3D3D3D" />
-        </g>
+        {/* Face Details (Only if Front View) */}
+        {!backView && (
+          <>
+            {/* Eyes */}
+            <g onClick={(e) => click(e, 'olho')} style={partStyle('olho')}>
+              <ellipse cx="86" cy="72" rx="7" ry="8" fill="white" />
+              <circle cx="87" cy="73" r="4" fill="#3D3D3D" />
+              <ellipse cx="114" cy="72" rx="7" ry="8" fill="white" />
+              <circle cx="113" cy="73" r="4" fill="#3D3D3D" />
+            </g>
 
-        {/* Mouth */}
-        <g onClick={(e) => click(e, 'boca')} style={partStyle('boca')}>
-          <path d="M90 95 Q100 103 110 95" stroke="#C07D50" strokeWidth="2.5" strokeLinecap="round" fill="none" />
-        </g>
+            {/* Nose */}
+            <path d="M96 85 Q100 90 104 85" stroke="rgba(0,0,0,0.1)" strokeWidth="2" strokeLinecap="round" />
+
+            {/* Mouth */}
+            <g onClick={(e) => click(e, 'boca')} style={partStyle('boca')}>
+              <path d="M88 95 Q100 105 112 95" stroke="#E57373" strokeWidth="4" strokeLinecap="round" />
+            </g>
+          </>
+        )}
 
         {/* Pointer Arrow */}
         {partData && (
-          <motion.g initial={{ x: -15, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ repeat: Infinity, duration: 0.8, repeatType: 'reverse' }}>
-            <path 
-              d={`M ${partData.svgX - 45} ${partData.svgY} L ${partData.svgX - 22} ${partData.svgY}`} 
-              stroke="#2A9D8F" strokeWidth="4" strokeLinecap="round" 
-            />
-            <path 
-              d={`M ${partData.svgX - 32} ${partData.svgY - 8} L ${partData.svgX - 22} ${partData.svgY} L ${partData.svgX - 32} ${partData.svgY + 8}`} 
-              fill="#2A9D8F" 
-            />
+          <motion.g initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring' }}>
+            <path d={`M${partData.svgX - 30} ${partData.svgY} L${partData.svgX - 10} ${partData.svgY}`} 
+              stroke="#30D5C8" strokeWidth="6" strokeLinecap="round" />
+            <path d={`M${partData.svgX - 15} ${partData.svgY - 5} L${partData.svgX - 5} ${partData.svgY} L${partData.svgX - 15} ${partData.svgY + 5}`} 
+              fill="#30D5C8" />
           </motion.g>
         )}
+
       </svg>
     </div>
   );
 }
 
-/* ─── Avatar Customizer ───────────────────────────────────── */
+/* ─── Customizer ─────────────────────────────────────────── */
 interface CustomizerProps {
   config: AvatarConfig;
-  onChange: (c: AvatarConfig) => void;
+  onChange: (config: AvatarConfig) => void;
   onDone: () => void;
 }
 
 export function AvatarCustomizer({ config, onChange, onDone }: CustomizerProps) {
-  const SectionLabel = ({children}: {children: React.ReactNode}) => (
-    <p className="text-[10px] font-bold text-muted uppercase tracking-widest mb-2">{children}</p>
-  );
+  const update = (key: keyof AvatarConfig, val: string) => onChange({ ...config, [key]: val });
 
   return (
-    <div className="flex flex-col lg:flex-row gap-8 items-start justify-center w-full max-w-5xl mx-auto">
-      {/* Preview */}
-      <div className="flex-shrink-0 card p-8 lg:p-12 flex items-center justify-center bg-gradient-to-b from-teal/5 to-sage-light/30 mx-auto lg:sticky lg:top-8">
+    <div className="flex flex-col md:flex-row items-center gap-10 p-6 md:p-12 card bg-white/40 backdrop-blur-md border-none shadow-2xl">
+      <div className="bg-gradient-to-b from-teal/5 to-white p-12 rounded-[4rem] shadow-inner relative">
+        <div className="absolute top-4 left-4 bg-white/80 px-3 py-1 rounded-full text-[10px] font-bold text-teal uppercase tracking-widest border border-teal/20">Seu Personagem</div>
         <Avatar config={config} size="xl" animated />
       </div>
 
-      {/* Options Scrollable */}
-      <div className="flex-1 space-y-8 w-full max-h-[70vh] overflow-y-auto pr-4 custom-scrollbar">
-        <h3 className="text-4xl text-teal font-bold">Personalize seu Amigo</h3>
+      <div className="flex-1 space-y-8 w-full max-w-md">
+        <header className="space-y-1">
+          <h2 className="text-3xl font-bold text-teal">Crie seu Avatar</h2>
+          <p className="text-muted text-sm uppercase tracking-widest font-medium">Escolha como você quer ser!</p>
+        </header>
 
-        {/* Skin */}
-        <div className="space-y-3">
-          <SectionLabel>Tom de Pele</SectionLabel>
-          <div className="flex gap-3 flex-wrap">
-            {SKIN_COLORS.map(c => (
-              <button key={c} onClick={() => onChange({ ...config, skin: c })}
-                className={`w-10 h-10 rounded-full border-4 transition-all ${config.skin === c ? 'border-teal scale-110 shadow-lg' : 'border-white shadow-sm'}`}
-                style={{ background: c }} />
-            ))}
-          </div>
-        </div>
-
-        {/* Hair */}
-        <div className="space-y-4">
-          <SectionLabel>Cabelo</SectionLabel>
-          <div className="flex gap-2 flex-wrap">
-            {[
-              ['short','Curto'],['long','Longo'],['curly','Cacheado'],['bald','Sem']
-            ].map(([id, lbl]) => (
-              <button key={id} onClick={() => onChange({ ...config, hair: id })}
-                className={`px-5 py-2 rounded-2xl text-sm font-bold border-2 transition-all ${config.hair === id ? 'bg-teal text-white border-teal shadow-md' : 'bg-white border-border text-muted hover:border-teal/30'}`}>
-                {lbl}
-              </button>
-            ))}
-          </div>
-          {config.hair !== 'bald' && (
-            <div className="flex gap-3 flex-wrap mt-2 p-3 bg-warm/30 rounded-3xl">
-              {HAIR_COLORS.map(c => (
-                <button key={c} onClick={() => onChange({ ...config, hairColor: c })}
-                  className={`w-8 h-8 rounded-full border-4 transition-all ${config.hairColor === c ? 'border-teal scale-110 shadow-md' : 'border-white shadow-sm'}`}
-                  style={{ background: c }} />
+        <div className="space-y-6 max-h-[50vh] overflow-y-auto pr-4 custom-scrollbar">
+          {/* Skin */}
+          <section className="space-y-3">
+            <h3 className="text-xs font-bold text-muted uppercase tracking-widest">Tom de Pele</h3>
+            <div className="flex flex-wrap gap-3">
+              {SKIN_COLORS.map(c => (
+                <button key={c} onClick={() => update('skin', c)}
+                  className={`w-10 h-10 rounded-2xl border-2 transition-all hover:scale-110 shadow-sm ${config.skin === c ? 'border-teal ring-4 ring-teal/20 scale-110':'border-white'}`}
+                  style={{ backgroundColor: c }} />
               ))}
             </div>
-          )}
+          </section>
+
+          {/* Hair Style */}
+          <section className="space-y-3">
+            <h3 className="text-xs font-bold text-muted uppercase tracking-widest">Estilo do Cabelo</h3>
+            <div className="flex flex-wrap gap-2">
+              {[
+                {id:'bald', label:'Sem Cabelo', ico:'🥚'},
+                {id:'short', label:'Curto', ico:'👦'},
+                {id:'long', label:'Longo', ico:'👧'},
+                {id:'curly', label:'Cacheado', ico:'🌀'},
+              ].map(h => (
+                <button key={h.id} onClick={() => update('hair', h.id)}
+                  className={`px-4 py-3 rounded-2xl border-2 font-bold text-sm transition-all flex items-center gap-2 ${config.hair === h.id ? 'border-teal bg-teal/5 text-teal shadow-md':'border-warm bg-white text-muted hover:border-teal/30'}`}>
+                  <span className="text-xl">{h.ico}</span> {h.label}
+                </button>
+              ))}
+            </div>
+          </section>
+
+          {/* Hair Color */}
+          <section className="space-y-3">
+            <h3 className="text-xs font-bold text-muted uppercase tracking-widest">Cor do Cabelo</h3>
+            <div className="flex flex-wrap gap-3">
+              {HAIR_COLORS.map(c => (
+                <button key={c} onClick={() => update('hairColor', c)}
+                  className={`w-8 h-8 rounded-xl border-2 transition-all hover:scale-110 ${config.hairColor === c ? 'border-teal ring-2 ring-teal/20 scale-110':'border-white'}`}
+                  style={{ backgroundColor: c }} />
+              ))}
+            </div>
+          </section>
+
+          {/* Clothing Type */}
+          <section className="space-y-3">
+             <h3 className="text-xs font-bold text-muted uppercase tracking-widest">Parte Superior</h3>
+             <div className="flex gap-2">
+                {[
+                  {id:'shirt', label:'Camiseta', ico:'👕'},
+                  {id:'longshirt', label:'Manga Longa', ico:'🥋'}
+                ].map(t => (
+                  <button key={t.id} onClick={() => update('clothingType', t.id as any)}
+                    className={`flex-1 py-3 rounded-2xl border-2 font-bold text-xs transition-all flex items-center justify-center gap-2 ${config.clothingType === t.id ? 'border-teal bg-teal/5 text-teal shadow-md':'border-warm bg-white text-muted hover:border-teal/30'}`}>
+                    <span>{t.ico}</span> {t.label}
+                  </button>
+                ))}
+             </div>
+          </section>
+
+          {/* Pants Type */}
+          <section className="space-y-3">
+             <h3 className="text-xs font-bold text-muted uppercase tracking-widest">Parte Inferior</h3>
+             <div className="flex gap-2">
+                {[
+                  {id:'shorts', label:'Shorts', ico:'🩳'},
+                  {id:'pants', label:'Calça', ico:'👖'}
+                ].map(t => (
+                  <button key={t.id} onClick={() => update('pantsType', t.id as any)}
+                    className={`flex-1 py-3 rounded-2xl border-2 font-bold text-xs transition-all flex items-center justify-center gap-2 ${config.pantsType === t.id ? 'border-teal bg-teal/5 text-teal shadow-md':'border-warm bg-white text-muted hover:border-teal/30'}`}>
+                    <span>{t.ico}</span> {t.label}
+                  </button>
+                ))}
+             </div>
+          </section>
+
+          {/* Shoes Type */}
+          <section className="space-y-3">
+             <h3 className="text-xs font-bold text-muted uppercase tracking-widest">Calçados</h3>
+             <div className="flex gap-2">
+                {[
+                  {id:'none', label:'Descalço', ico:'👣'},
+                  {id:'shoes', label:'Sapato', ico:'👟'},
+                  {id:'sandals', label:'Sandália', ico:'🩴'}
+                ].map(t => (
+                  <button key={t.id} onClick={() => update('shoesType', t.id as any)}
+                    className={`flex-1 py-3 rounded-2xl border-2 font-bold text-xs transition-all flex items-center justify-center gap-2 ${config.shoesType === t.id ? 'border-teal bg-teal/5 text-teal shadow-md':'border-warm bg-white text-muted hover:border-teal/30'}`}>
+                    <span>{t.ico}</span> {t.label}
+                  </button>
+                ))}
+             </div>
+          </section>
+
+          {/* Clothing Color */}
+          <section className="space-y-3">
+            <h3 className="text-xs font-bold text-muted uppercase tracking-widest">Cor da Roupa</h3>
+            <div className="flex flex-wrap gap-3">
+              {CLOTHING_COLORS.map(c => (
+                <button key={c} onClick={() => update('clothing', c)}
+                  className={`w-8 h-8 rounded-xl border-2 transition-all hover:scale-110 ${config.clothing === c ? 'border-teal ring-2 ring-teal/20 scale-110':'border-white'}`}
+                  style={{ backgroundColor: c }} />
+              ))}
+            </div>
+          </section>
         </div>
 
-        {/* Clothing */}
-        <div className="space-y-4">
-          <SectionLabel>Parte de Cima</SectionLabel>
-          <div className="flex gap-2 mb-3">
-             <button onClick={() => onChange({ ...config, clothingType: 'shirt' })}
-               className={`flex-1 py-2 rounded-2xl text-xs font-bold border-2 ${config.clothingType === 'shirt' ? 'bg-teal text-white border-teal' : 'bg-white border-border text-muted'}`}>
-               Camiseta
-             </button>
-             <button onClick={() => onChange({ ...config, clothingType: 'longshirt' })}
-               className={`flex-1 py-2 rounded-2xl text-xs font-bold border-2 ${config.clothingType === 'longshirt' ? 'bg-teal text-white border-teal' : 'bg-white border-border text-muted'}`}>
-               Manga Longa
-             </button>
-          </div>
-          <div className="flex gap-3 flex-wrap">
-            {CLOTHING_COLORS.map(c => (
-              <button key={c} onClick={() => onChange({ ...config, clothing: c })}
-                className={`w-10 h-10 rounded-full border-4 transition-all ${config.clothing === c ? 'border-teal scale-110 shadow-lg' : 'border-white shadow-sm'}`}
-                style={{ background: c }} />
-            ))}
-          </div>
-        </div>
-
-        {/* Pants */}
-        <div className="space-y-3">
-          <SectionLabel>Parte de Baixo</SectionLabel>
-          <div className="flex gap-2">
-             <button onClick={() => onChange({ ...config, pantsType: 'shorts' })}
-               className={`flex-1 py-2 rounded-2xl text-xs font-bold border-2 ${config.pantsType === 'shorts' ? 'bg-teal text-white border-teal' : 'bg-white border-border text-muted'}`}>
-               Shorts
-             </button>
-             <button onClick={() => onChange({ ...config, pantsType: 'pants' })}
-               className={`flex-1 py-2 rounded-2xl text-xs font-bold border-2 ${config.pantsType === 'pants' ? 'bg-teal text-white border-teal' : 'bg-white border-border text-muted'}`}>
-               Calça
-             </button>
-          </div>
-        </div>
-
-        {/* Shoes */}
-        <div className="space-y-3">
-          <SectionLabel>Calçados</SectionLabel>
-          <div className="grid grid-cols-3 gap-2">
-             <button onClick={() => onChange({ ...config, shoesType: 'none' })}
-               className={`py-2 rounded-2xl text-xs font-bold border-2 ${config.shoesType === 'none' ? 'bg-teal text-white border-teal' : 'bg-white border-border text-muted'}`}>
-               Descalço
-             </button>
-             <button onClick={() => onChange({ ...config, shoesType: 'shoes' })}
-               className={`py-2 rounded-2xl text-xs font-bold border-2 ${config.shoesType === 'shoes' ? 'bg-teal text-white border-teal' : 'bg-white border-border text-muted'}`}>
-               Sapato
-             </button>
-             <button onClick={() => onChange({ ...config, shoesType: 'sandals' })}
-               className={`py-2 rounded-2xl text-xs font-bold border-2 ${config.shoesType === 'sandals' ? 'bg-teal text-white border-teal' : 'bg-white border-border text-muted'}`}>
-               Sandália
-             </button>
-          </div>
-        </div>
-
-        <button onClick={onDone} className="btn-primary w-full py-5 text-xl mt-6 sticky bottom-0 shadow-2xl">
-          Tudo Pronto! 🚀
+        <button onClick={onDone} className="btn-primary w-full py-4 text-lg shadow-xl shadow-teal/20 active:scale-95 transition-transform">
+          Ficou Incrível! Começar ✨
         </button>
       </div>
     </div>

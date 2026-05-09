@@ -98,18 +98,19 @@ export default function App() {
   const sharedProps = { settings, say, onComplete: complete, onNavigate: navigate, avatar, customHelpers };
 
   return (
-    <div key={resetKey} className="min-h-screen bg-cream flex flex-col overflow-x-hidden">
-      {/* Header */}
+    <div key={resetKey} className="min-h-screen flex flex-col bg-cream font-sans text-text selection:bg-teal/20 selection:text-teal-dark overflow-x-hidden">
+      
+      {/* Header (Only in App phase) */}
       {phase === 'app' && (
-        <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-border px-4 py-3">
-          <div className="max-w-6xl mx-auto flex items-center justify-between">
+        <header className="sticky top-0 z-[70] bg-white/70 backdrop-blur-xl border-b border-border shadow-sm">
+          <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <button onClick={resetApp} className="w-10 h-10 bg-teal rounded-2xl flex items-center justify-center text-white text-lg hover:rotate-180 transition-transform duration-500 shadow-sm">
-                <RotateCcw size={18}/>
+              <button onClick={() => setSection('home')} className="w-10 h-10 bg-teal rounded-2xl flex items-center justify-center text-white shadow-lg shadow-teal/20 hover:scale-105 transition-transform">
+                <Heart size={20} fill="currentColor" />
               </button>
               <div className="hidden sm:block">
-                <h1 className="text-lg text-teal leading-none">Corpo e Limites</h1>
-                <p className="text-xs text-muted">Crescendo com autonomia</p>
+                <h1 className="text-lg text-teal leading-none font-bold">Corpo e Limites</h1>
+                <p className="text-[10px] text-muted uppercase tracking-widest font-medium">Crescendo com autonomia</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -132,26 +133,25 @@ export default function App() {
         </header>
       )}
 
-      {/* Main */}
+      {/* Main Content */}
       <main className="flex-1 flex">
         {phase === 'app' && (
           <nav className="fixed bottom-0 left-0 right-0 z-[60] bg-white/90 backdrop-blur-xl border-t border-border flex justify-around p-2 md:static md:flex md:flex-col md:w-52 md:shrink-0 md:p-4 md:border-t-0 md:border-r md:bg-white/50 lg:w-64">
             {NAV_ITEMS.map(item => (
               <button key={item.id} onClick={() => navigate(item.id as Section)}
-                className={`flex flex-col md:flex-row items-center gap-1 md:gap-3 p-2 md:px-4 md:py-3 rounded-xl md:rounded-3xl transition-all ${
-                  section === item.id 
-                    ? 'text-teal md:bg-teal md:text-white shadow-sm' 
-                    : 'text-muted hover:text-teal md:hover:bg-teal/5'
-                }`}>
-                <item.icon size={18} className={section === item.id ? '' : 'opacity-60'} />
-                <span className="text-[9px] md:text-sm font-bold truncate">{item.label}</span>
-                {completed.includes(item.id) && <span className="hidden md:block ml-auto text-xs">⭐</span>}
+                className={`nav-pill ${section === item.id ? 'active' : ''}`}>
+                <item.icon size={20} />
+                <span className="text-xs font-bold">{item.label}</span>
               </button>
             ))}
+            <div className="hidden md:block mt-auto pt-6 border-t border-border">
+              <button onClick={resetApp} className="w-full flex items-center gap-2 p-3 text-muted hover:text-rose transition-colors text-xs font-bold uppercase tracking-widest">
+                <RotateCcw size={14} /> Reiniciar App
+              </button>
+            </div>
           </nav>
         )}
 
-        {/* Content */}
         <div className="flex-1 overflow-y-auto">
           <div className="max-w-4xl mx-auto px-4 py-4 md:py-8 pb-32">
             <AnimatePresence mode="wait">
@@ -166,38 +166,102 @@ export default function App() {
                     <p className="text-muted">Terapeuta, configure os detalhes antes de começar com a criança.</p>
                   </div>
 
-                  <div className="card p-8 space-y-6">
-                    <div className="space-y-2">
-                      <label className="text-sm font-bold text-muted uppercase">Perfil da Criança</label>
-                      <textarea value={settings.childProfile} 
-                        onChange={e => setSettings(s=>({...s, childProfile: e.target.value}))}
-                        className="w-full h-32 p-4 rounded-2xl bg-warm/50 border border-border outline-none focus:border-teal transition-all"
-                        placeholder="Ex: Criança de 6 anos com TEA leve, foco em limites corporais e reconhecimento de emoções..."/>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
+                  <div className="card p-8 space-y-8 max-h-[75vh] overflow-y-auto custom-scrollbar">
+                    <section className="space-y-4">
+                      <h3 className="text-sm font-bold text-teal uppercase tracking-widest flex items-center gap-2">
+                        <Smile size={18}/> 1. Perfil da Criança
+                      </h3>
                       <div className="space-y-2">
-                        <label className="text-sm font-bold text-muted uppercase">Dificuldade</label>
-                        <select value={settings.difficulty} 
-                          onChange={e => setSettings(s=>({...s, difficulty: e.target.value as Difficulty}))}
-                          className="w-full p-3 rounded-xl bg-warm/50 border border-border">
-                          <option value="basico">Básico</option>
-                          <option value="intermediario">Intermediário</option>
-                          <option value="avancado">Avançado</option>
-                        </select>
+                        <p className="text-xs text-muted">Descreva as necessidades específicas para que a IA personalize a sessão.</p>
+                        <textarea value={settings.childProfile} 
+                          onChange={e => setSettings(s=>({...s, childProfile: e.target.value}))}
+                          className="w-full h-32 p-4 rounded-2xl bg-warm/50 border border-border outline-none focus:border-teal transition-all text-sm"
+                          placeholder="Ex: Criança de 6 anos com TEA leve, foco em limites corporais..."/>
                       </div>
-                      <div className="space-y-2">
-                        <label className="text-sm font-bold text-muted uppercase">Áudio (Voz do App)</label>
-                        <button onClick={() => { setSettings(s=>({...s, audioEnabled: !s.audioEnabled})); say(!settings.audioEnabled ? 'Áudio ligado' : 'Áudio desligado', true); }}
-                          className={`w-full p-3 rounded-xl border-2 transition-all font-bold ${settings.audioEnabled ? 'border-teal bg-teal/5 text-teal' : 'border-rose/20 bg-rose/5 text-rose'}`}>
-                          {settings.audioEnabled ? '🔊 Ligado' : '🔇 Desligado'}
-                        </button>
-                      </div>
-                    </div>
+                    </section>
 
-                    <button onClick={() => setPhase('intro')}
-                      className="btn-primary w-full py-4 text-lg">
-                      Salvar e Iniciar Sessão 🚀
+                    <section className="space-y-4 border-t border-border pt-6">
+                      <h3 className="text-sm font-bold text-teal uppercase tracking-widest flex items-center gap-2">
+                        <Shield size={18}/> 2. Configurações Técnicas
+                      </h3>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="space-y-1">
+                          <label className="text-[10px] font-bold text-muted uppercase">Dificuldade</label>
+                          <select value={settings.difficulty} 
+                            onChange={e => setSettings(s=>({...s, difficulty: e.target.value as Difficulty}))}
+                            className="w-full p-3 rounded-xl bg-warm border border-border text-sm">
+                            <option value="basico">Básico</option>
+                            <option value="intermediario">Intermediário</option>
+                            <option value="avancado">Avançado</option>
+                          </select>
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-[10px] font-bold text-muted uppercase">Voz do App</label>
+                          <button onClick={() => { setSettings(s=>({...s, audioEnabled: !s.audioEnabled})); say(!settings.audioEnabled ? 'Áudio ligado' : 'Áudio desligado', true); }}
+                            className={`w-full p-3 rounded-xl border-2 transition-all font-bold text-sm ${settings.audioEnabled ? 'border-teal bg-teal/5 text-teal' : 'border-rose/20 bg-rose/5 text-rose'}`}>
+                            {settings.audioEnabled ? '🔊 Ligado' : '🔇 Desligado'}
+                          </button>
+                        </div>
+                      </div>
+                    </section>
+
+                    <section className="space-y-4 border-t border-border pt-6">
+                      <h3 className="text-sm font-bold text-teal uppercase tracking-widest flex items-center gap-2">
+                        <Users size={18}/> 3. Ajudantes Personalizados
+                      </h3>
+                      <p className="text-xs text-muted">Adicione pessoas específicas que a criança deve reconhecer como seguras.</p>
+                      
+                      <div className="bg-warm/30 p-4 rounded-2xl space-y-4 border border-border">
+                        <div className="grid grid-cols-2 gap-3">
+                          <input id="setup-helper-name" className="w-full bg-white border border-border rounded-xl px-3 py-2 text-xs" placeholder="Nome (Ex: Tio João)"/>
+                          <div className="flex items-center gap-2">
+                            <span id="setup-emoji-display" className="text-xl">🧑</span>
+                            <input type="hidden" id="setup-emoji-val" defaultValue="🧑" />
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-6 gap-2 p-2 bg-white/50 rounded-xl max-h-24 overflow-y-auto">
+                          {HELP_EMOJIS.map(e => (
+                            <button key={e} onClick={() => {
+                              const display = document.getElementById('setup-emoji-display');
+                              const input = document.getElementById('setup-emoji-val') as HTMLInputElement;
+                              if(display && input) { display.innerText = e; input.value = e; }
+                            }} className="text-lg hover:scale-125 transition-transform">{e}</button>
+                          ))}
+                        </div>
+                        <div className="space-y-2">
+                           <textarea id="setup-helper-touch" className="w-full bg-white border border-border rounded-xl p-2 text-xs resize-none h-12" placeholder="Toque permitido..."/>
+                           <textarea id="setup-helper-approach" className="w-full bg-white border border-border rounded-xl p-2 text-xs resize-none h-12" placeholder="Como se aproxima..."/>
+                        </div>
+                        <button onClick={() => {
+                          const nameEl = document.getElementById('setup-helper-name') as HTMLInputElement;
+                          const emojiEl = document.getElementById('setup-emoji-val') as HTMLInputElement;
+                          const touchEl = document.getElementById('setup-helper-touch') as HTMLTextAreaElement;
+                          const approachEl = document.getElementById('setup-helper-approach') as HTMLTextAreaElement;
+                          if(nameEl.value) {
+                            addCustomHelper({ id: Date.now().toString(), label: nameEl.value, icon: emojiEl.value, desc: 'Ajudante personalizado.', allowedTouch: touchEl.value, approach: approachEl.value });
+                            nameEl.value = ''; touchEl.value = ''; approachEl.value = '';
+                            say('Ajudante adicionado!');
+                          }
+                        }} className="btn-primary w-full py-2 text-xs bg-teal/80">Adicionar Ajudante</button>
+                      </div>
+
+                      <div className="flex flex-wrap gap-2">
+                        {customHelpers.map(h => (
+                          <div key={h.id} className="flex items-center gap-2 bg-white border border-teal/20 px-3 py-1.5 rounded-full text-xs font-bold text-teal shadow-sm">
+                            <span>{h.icon}</span> <span>{h.label}</span>
+                            <button onClick={() => setCustomHelpers(prev => prev.filter(x => x.id !== h.id))} className="text-rose hover:scale-110 transition-transform ml-1">✕</button>
+                          </div>
+                        ))}
+                      </div>
+                    </section>
+
+                    <button onClick={() => {
+                      if(!settings.childProfile) { alert('Por favor, descreva o perfil da criança primeiro.'); return; }
+                      setPhase('intro');
+                      say('Tudo pronto! Vamos começar a sessão.');
+                    }}
+                      className="btn-primary w-full py-4 text-xl shadow-2xl shadow-teal/30">
+                      Iniciar Sessão com a Criança 🚀
                     </button>
                   </div>
                 </motion.div>
@@ -297,32 +361,17 @@ export default function App() {
         </div>
       </main>
 
-      {/* Bottom mobile nav */}
-      {phase === 'app' && (
-        <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-xl border-t border-border px-2 py-2 z-50">
-          <div className="flex gap-1 max-w-md mx-auto">
-            {NAV_ITEMS.slice(0,5).map(item => (
-              <button key={item.id} onClick={() => navigate(item.id as Section)}
-                className={`nav-pill text-xs ${section === item.id ? 'active' : ''}`}>
-                <item.icon size={20} />
-                <span>{item.label}</span>
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Therapist Panel */}
+      {/* Therapist Panel Overlay */}
       <AnimatePresence>
         {showTherapist && (
-          <motion.div initial={{opacity:0,x:'100%'}} animate={{opacity:1,x:0}} exit={{opacity:0,x:'100%'}}
-            className="fixed inset-y-0 right-0 w-full max-w-sm bg-[#1a2332] text-white z-[200] flex flex-col shadow-2xl overflow-y-auto">
+          <motion.div initial={{opacity:0, x:'100%'}} animate={{opacity:1, x:0}} exit={{opacity:0, x:'100%'}}
+            className="fixed inset-y-0 right-0 w-full max-w-sm bg-[#1a2332] text-white z-[200] flex flex-col shadow-2xl overflow-y-auto custom-scrollbar">
             <div className="p-6 border-b border-white/10 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-teal rounded-2xl flex items-center justify-center"><BrainCircuit size={20}/></div>
                 <div>
-                  <p className="font-bold">Modo Terapeuta</p>
-                  <p className="text-xs text-white/40">Painel Profissional</p>
+                  <p className="font-bold">Painel Terapeuta</p>
+                  <p className="text-xs text-white/40">Sessão em curso</p>
                 </div>
               </div>
               <button onClick={() => setShowTherapist(false)} className="text-white/40 hover:text-white transition-colors">
@@ -330,152 +379,44 @@ export default function App() {
               </button>
             </div>
 
-            <div className="p-6 space-y-8 flex-1">
-              {/* Settings */}
-              <section className="space-y-4">
-                <h3 className="text-xs uppercase tracking-[0.2em] text-white/30 font-bold">Configurações</h3>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between bg-white/5 p-4 rounded-2xl">
-                    <span className="text-sm text-white/70">Dificuldade</span>
-                    <select value={settings.difficulty}
-                      onChange={e => setSettings(s=>({...s, difficulty: e.target.value as Difficulty}))}
-                      className="bg-transparent text-teal font-bold outline-none">
-                      <option value="basico" className="text-black">Básico</option>
-                      <option value="intermediario" className="text-black">Intermediário</option>
-                      <option value="avancado" className="text-black">Avançado</option>
-                    </select>
-                  </div>
-                  <div className="flex items-center justify-between bg-white/5 p-4 rounded-2xl">
-                    <span className="text-sm text-white/70">Narração por voz</span>
+            <div className="p-6 space-y-8">
+               {/* Minimal mid-session settings */}
+               <section className="space-y-4">
+                 <h3 className="text-xs uppercase tracking-[0.2em] text-white/30 font-bold">Ajustes Rápidos</h3>
+                 <div className="space-y-2">
                     <button onClick={() => setSettings(s=>({...s, audioEnabled:!s.audioEnabled}))}
-                      className={`w-12 h-6 rounded-full transition-colors relative ${settings.audioEnabled ? 'bg-teal':'bg-white/20'}`}>
-                      <motion.div animate={{x: settings.audioEnabled ? 24 : 2}}
-                        className="absolute top-1 w-4 h-4 bg-white rounded-full shadow"/>
+                      className="w-full flex items-center justify-between bg-white/5 p-4 rounded-2xl text-sm">
+                      <span>Voz do App</span>
+                      <span className={settings.audioEnabled ? 'text-teal':'text-rose'}>{settings.audioEnabled ? 'Ligada':'Desligada'}</span>
                     </button>
-                  </div>
-                  <div className="flex items-center justify-between bg-white/5 p-4 rounded-2xl">
-                    <span className="text-sm text-white/70">Modo Não Verbal</span>
-                    <button onClick={() => setSettings(s=>({...s, nonVerbalMode:!s.nonVerbalMode}))}
-                      className={`w-12 h-6 rounded-full transition-colors relative ${settings.nonVerbalMode ? 'bg-teal':'bg-white/20'}`}>
-                      <motion.div animate={{x: settings.nonVerbalMode ? 24 : 2}}
-                        className="absolute top-1 w-4 h-4 bg-white rounded-full shadow"/>
-                    </button>
-                  </div>
-                  <div className="flex items-center justify-between bg-white/5 p-4 rounded-2xl">
-                    <span className="text-sm text-white/70">Perfil Sensorial</span>
-                    <div className="flex gap-1">
-                      {['low','medium','high'].map(v => (
-                        <button key={v} onClick={() => setSettings(s=>({...s, visualIntensity: v as any}))}
-                          className={`px-2 py-1 rounded-lg text-[10px] font-bold ${settings.visualIntensity===v ? 'bg-teal text-white':'bg-white/10 text-white/40'}`}>
-                          {v==='low'?'Baixo':v==='medium'?'Médio':'Alto'}
-                        </button>
-                      ))}
+                    <div className="flex items-center justify-between bg-white/5 p-4 rounded-2xl text-sm">
+                       <span>Dificuldade</span>
+                       <span className="text-teal font-bold">{settings.difficulty.toUpperCase()}</span>
                     </div>
-                  </div>
-                </div>
-              </section>
+                 </div>
+               </section>
 
-              {/* Child Profile */}
-              <section className="space-y-4">
-                <h3 className="text-xs uppercase tracking-[0.2em] text-white/30 font-bold">Perfil da Criança</h3>
-                <div className="bg-white/5 p-4 rounded-2xl space-y-3">
-                  <p className="text-[10px] text-white/40 leading-relaxed">
-                    Descreva o histórico e as dificuldades específicas para que a IA personalize as histórias e o quiz.
-                  </p>
-                  <textarea value={settings.childProfile}
-                    onChange={e => setSettings(s=>({...s, childProfile: e.target.value}))}
-                    className="w-full h-24 bg-white/5 border border-white/10 rounded-xl p-3 text-xs text-white outline-none focus:border-teal/50 transition-colors placeholder:text-white/20 resize-none"
-                    placeholder="Ex: Criança com TEA leve, tem dificuldade em reconhecer espaço pessoal e medo de médicos..."/>
-                </div>
-              </section>
+               <section className="space-y-4">
+                 <h3 className="text-xs uppercase tracking-[0.2em] text-white/30 font-bold">Perfil Ativo</h3>
+                 <div className="bg-white/5 p-4 rounded-2xl text-[11px] text-white/60 leading-relaxed max-h-40 overflow-y-auto">
+                    {settings.childProfile || 'Nenhum perfil definido.'}
+                 </div>
+               </section>
 
-              {/* IA Configuration (Hidden Key) */}
-              <section className="space-y-4">
-                <h3 className="text-xs uppercase tracking-[0.2em] text-white/30 font-bold">Inteligência Artificial</h3>
-                <div className="bg-teal/5 border border-teal/20 rounded-2xl p-4">
-                  <div className="flex items-center gap-2 text-teal">
-                    <CheckCircle2 size={14}/>
-                    <span className="text-[10px] font-bold uppercase">IA Ativa e Configurada</span>
-                  </div>
-                  <p className="text-[9px] text-white/30 mt-2">A conexão com a Groq está pronta para personalizar histórias e frases.</p>
-                </div>
-              </section>
+               <section className="space-y-4">
+                 <h3 className="text-xs uppercase tracking-[0.2em] text-white/30 font-bold">Notas da Sessão</h3>
+                 <textarea value={notes} onChange={e => setNotes(e.target.value)}
+                   className="w-full h-32 bg-white/5 border border-white/10 rounded-2xl p-4 text-xs text-white outline-none focus:border-teal/50 transition-colors placeholder:text-white/20 resize-none"
+                   placeholder="Anote as reações e aprendizados da criança..."/>
+               </section>
 
-              {/* Observation (Manual) */}
-              <section className="space-y-4">
-                <h3 className="text-xs uppercase tracking-[0.2em] text-white/30 font-bold">Notas da Sessão</h3>
-                <textarea value={notes} onChange={e => setNotes(e.target.value)}
-                  className="w-full h-20 bg-white/5 border border-white/10 rounded-2xl p-4 text-xs text-white outline-none focus:border-teal/50 transition-colors placeholder:text-white/20 resize-none"
-                  placeholder="Anotações livres sobre a sessão..."/>
-              </section>
+               <button onClick={() => setShowTherapist(false)}
+                 className="btn-primary w-full py-4 text-xs flex items-center justify-center gap-2">
+                 <Save size={14}/> Salvar e Voltar
+               </button>
 
-              <button onClick={() => { say('Configurações salvas', true); setShowTherapist(false); }}
-                className="btn-primary w-full py-4 text-xs flex items-center justify-center gap-2">
-                <Save size={14}/> Salvar Configurações
-              </button>
-
-              <div className="h-px bg-white/10 my-4" />
-
-              {/* Custom Helper Form */}
-              <section className="space-y-4">
-                <h3 className="text-xs uppercase tracking-[0.2em] text-white/30 font-bold">Criar Novo Ajudante</h3>
-                <div className="bg-white/5 p-4 rounded-2xl space-y-4">
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="space-y-1">
-                      <label className="text-[10px] text-white/40 uppercase">Nome</label>
-                      <input id="helper-name" className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs text-white" placeholder="Ex: Tio João"/>
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-[10px] text-white/40 uppercase">Ícone</label>
-                      <div className="flex items-center justify-center w-full bg-white/5 border border-white/10 rounded-xl h-[34px] text-lg">
-                         <span id="helper-emoji-display">🧑</span>
-                         <input type="hidden" id="helper-emoji-val" defaultValue="🧑" />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="text-[10px] text-white/40 uppercase">Escolha um EMOJI</label>
-                    <div className="grid grid-cols-6 gap-2 p-2 bg-white/5 rounded-xl max-h-32 overflow-y-auto custom-scrollbar">
-                      {['👩','👨','👵','👴','🧑‍🏫','👨‍🏫','👩‍⚕️','👨‍⚕️','🧑‍🦰','🧑‍🍼','🧑‍🤝‍🧑','👮','👩‍🚒','🦸','🦹','👼','😺','🐶','🐹','🐰','🦁','🦄'].map(e => (
-                        <button key={e} onClick={() => {
-                          const display = document.getElementById('helper-emoji-display');
-                          const input = document.getElementById('helper-emoji-val') as HTMLInputElement;
-                          if(display && input) { display.innerText = e; input.value = e; }
-                        }} className="text-xl hover:scale-125 transition-transform p-1">
-                          {e}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="text-[10px] text-white/40 uppercase">Toque Permitido</label>
-                    <textarea id="helper-touch" className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-xs text-white resize-none h-16" placeholder="Onde e como pode tocar..."/>
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-[10px] text-white/40 uppercase">Como se aproxima</label>
-                    <textarea id="helper-approach" className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-xs text-white resize-none h-16" placeholder="Ex: Pede permissão, avisa antes..."/>
-                  </div>
-                  <button onClick={() => {
-                    const name = (document.getElementById('helper-name') as HTMLInputElement).value;
-                    const emoji = (document.getElementById('helper-emoji-val') as HTMLInputElement).value;
-                    const touch = (document.getElementById('helper-touch') as HTMLTextAreaElement).value;
-                    const approach = (document.getElementById('helper-approach') as HTMLTextAreaElement).value;
-                    if(name && emoji) {
-                      addCustomHelper({ id: Date.now().toString(), label: name, icon: emoji, desc: 'Ajudante personalizado.', allowedTouch: touch, approach: approach });
-                      (document.getElementById('helper-name') as HTMLInputElement).value = '';
-                      (document.getElementById('helper-emoji-display')!).innerText = '🧑';
-                      (document.getElementById('helper-emoji-val') as HTMLInputElement).value = '🧑';
-                      (document.getElementById('helper-touch') as HTMLTextAreaElement).value = '';
-                      (document.getElementById('helper-approach') as HTMLTextAreaElement).value = '';
-                      say('Novo ajudante criado!', true);
-                    }
-                  }} className="w-full py-3 bg-teal hover:bg-teal-dark rounded-xl text-xs text-white font-bold transition-all shadow-lg">
-                    + Adicionar Ajudante
-                  </button>
-                </div>
-              </section>
+               <div className="h-px bg-white/10 my-4" />
+               <p className="text-[10px] text-white/20 text-center italic">Para mudanças estruturais profundas, reinicie o aplicativo.</p>
             </div>
           </motion.div>
         )}

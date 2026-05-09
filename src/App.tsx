@@ -1,0 +1,356 @@
+import React, { useState, useCallback } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
+import { Home, Heart, BookOpen, Smile, Shield, Users, Volume2, BrainCircuit, ChevronRight, Settings2, Star, RotateCcw } from 'lucide-react';
+import { Avatar, AvatarCustomizer } from './Avatar';
+import { AvatarConfig, Section, Difficulty, BODY_PARTS, TOUCH_LEVELS, STORIES, EMOTIONS, HELPERS, AFFIRMATIONS, SKIN_COLORS } from './data';
+import { ModuleCorpo } from './modules/Corpo';
+import { ModuleEspaco } from './modules/Espaco';
+import { ModuleSemaforo } from './modules/Semaforo';
+import { ModuleHistorias } from './modules/Historias';
+import { ModuleEmocoes } from './modules/Emocoes';
+import { ModuleAjudantes } from './modules/Ajudantes';
+import { ModuleVoz } from './modules/Voz';
+import { ModuleProgresso } from './modules/Progresso';
+
+const DEFAULT_AVATAR: AvatarConfig = {
+  skin: SKIN_COLORS[1], hair: 'short', hairColor: '#8B4513', clothing: '#2A9D8F'
+};
+
+export interface TherapistSettings {
+  difficulty: Difficulty;
+  audioEnabled: boolean;
+  visualIntensity: 'low'|'medium'|'high';
+  nonVerbalMode: boolean;
+  sessionDuration: number;
+}
+
+const DEFAULT_SETTINGS: TherapistSettings = {
+  difficulty: 'basico', audioEnabled: true, visualIntensity: 'medium',
+  nonVerbalMode: false, sessionDuration: 20
+};
+
+function speak(text: string, enabled: boolean) {
+  if (!enabled || !window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = 'pt-BR'; u.rate = 0.85; u.pitch = 1.1;
+  window.speechSynthesis.speak(u);
+}
+
+const NAV_ITEMS = [
+  { id: 'home',      icon: Home,     label: 'Início' },
+  { id: 'corpo',     icon: Smile,    label: 'Meu Corpo' },
+  { id: 'espaco',    icon: Shield,   label: 'Meu Espaço' },
+  { id: 'semaforo',  icon: Heart,    label: 'Semáforo' },
+  { id: 'historias', icon: BookOpen, label: 'Histórias' },
+  { id: 'emocoes',   icon: Smile,    label: 'Emoções' },
+  { id: 'voz',       icon: Volume2,  label: 'Minha Voz' },
+  { id: 'ajudantes', icon: Users,    label: 'Ajudantes' },
+  { id: 'progresso', icon: Star,     label: 'Conquistas' },
+];
+
+const HOME_MODULES = [
+  { id:'corpo',     emoji:'🖐️', title:'Meu Corpo',     desc:'Conheço meu corpo!',      color:'bg-teal/10',   border:'border-teal/30' },
+  { id:'espaco',    emoji:'⭕',  title:'Meu Espaço',    desc:'Espaço pessoal',           color:'bg-blue/10',   border:'border-blue/30' },
+  { id:'semaforo',  emoji:'🚦',  title:'Semáforo',      desc:'Tipos de toque',           color:'bg-green/10',  border:'border-green/30' },
+  { id:'historias', emoji:'📖',  title:'Histórias',     desc:'Aprendo com histórias',    color:'bg-yellow/10', border:'border-yellow/30' },
+  { id:'emocoes',   emoji:'💛',  title:'Emoções',       desc:'Reconheço meus sentimentos',color:'bg-peach/10', border:'border-peach/30' },
+  { id:'voz',       emoji:'📢',  title:'Minha Voz',     desc:'Posso dizer não!',         color:'bg-purple/10', border:'border-purple/30' },
+  { id:'ajudantes', emoji:'🤝',  title:'Ajudantes',     desc:'Adultos seguros',          color:'bg-rose/10',   border:'border-rose/30' },
+  { id:'progresso', emoji:'⭐',  title:'Conquistas',    desc:'Meu progresso',            color:'bg-sage/10',   border:'border-sage/30' },
+];
+
+export default function App() {
+  const [phase, setPhase] = useState<'intro'|'customize'|'app'>('intro');
+  const [gender, setGender] = useState<string>('');
+  const [avatar, setAvatar] = useState<AvatarConfig>(DEFAULT_AVATAR);
+  const [section, setSection] = useState<Section>('home');
+  const [settings, setSettings] = useState<TherapistSettings>(DEFAULT_SETTINGS);
+  const [showTherapist, setShowTherapist] = useState(false);
+  const [completed, setCompleted] = useState<string[]>([]);
+  const [notes, setNotes] = useState('');
+  const [affirmIdx, setAffirmIdx] = useState(0);
+
+  const say = useCallback((t: string) => speak(t, settings.audioEnabled), [settings.audioEnabled]);
+  const complete = useCallback((id: string) => setCompleted(p => p.includes(id) ? p : [...p, id]), []);
+  const navigate = useCallback((s: Section) => { setSection(s); window.scrollTo(0,0); }, []);
+
+  const sharedProps = { settings, say, onComplete: complete, onNavigate: navigate, avatar };
+
+  return (
+    <div className="min-h-screen bg-cream flex flex-col overflow-x-hidden">
+      {/* Header */}
+      {phase === 'app' && (
+        <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-border px-4 py-3">
+          <div className="max-w-6xl mx-auto flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-teal rounded-2xl flex items-center justify-center text-white text-lg">🌱</div>
+              <div>
+                <h1 className="text-lg text-teal leading-none">Corpo e Limites</h1>
+                <p className="text-xs text-muted">Crescendo com autonomia</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="hidden md:flex items-center gap-1 bg-warm rounded-full px-3 py-1">
+                <span className="text-xs text-muted">Progresso:</span>
+                <span className="text-xs font-bold text-teal">{completed.length}/{HOME_MODULES.length}</span>
+              </div>
+              <button onClick={() => { say('Modo terapeuta'); setShowTherapist(p=>!p); }}
+                className="p-2 rounded-2xl bg-warm hover:bg-border transition-colors">
+                <BrainCircuit size={20} className="text-muted" />
+              </button>
+              <button onClick={() => say(AFFIRMATIONS[affirmIdx % AFFIRMATIONS.length])}
+                className="p-2 rounded-2xl bg-warm hover:bg-border transition-colors">
+                <Volume2 size={20} className="text-teal" />
+              </button>
+            </div>
+          </div>
+        </header>
+      )}
+
+      {/* Main */}
+      <main className="flex-1 flex">
+        {/* Sidebar nav (desktop) */}
+        {phase === 'app' && (
+          <nav className="hidden lg:flex flex-col gap-1 w-52 shrink-0 p-4 border-r border-border bg-white/50">
+            {NAV_ITEMS.map(item => (
+              <button key={item.id} onClick={() => navigate(item.id as Section)}
+                className={`flex items-center gap-3 px-4 py-3 rounded-3xl text-sm font-bold transition-all ${
+                  section === item.id ? 'bg-teal text-white shadow-md' : 'text-muted hover:bg-warm hover:text-text'
+                }`}>
+                <item.icon size={18} />
+                {item.label}
+                {completed.includes(item.id) && <span className="ml-auto text-xs">⭐</span>}
+              </button>
+            ))}
+          </nav>
+        )}
+
+        {/* Content */}
+        <div className="flex-1 overflow-y-auto">
+          <div className="max-w-4xl mx-auto px-4 py-8 pb-32">
+            <AnimatePresence mode="wait">
+
+              {/* ── INTRO ── */}
+              {phase === 'intro' && (
+                <motion.div key="intro" initial={{opacity:0,y:20}} animate={{opacity:1,y:0}} exit={{opacity:0,y:-20}}
+                  className="flex flex-col items-center justify-center min-h-[70vh] text-center space-y-12">
+                  <div className="space-y-4">
+                    <div className="text-7xl animate-float">🌱</div>
+                    <h2 className="text-5xl text-teal">Corpo e Limites</h2>
+                    <p className="text-xl text-muted max-w-md">Um espaço seguro para conhecer seu corpo, suas emoções e seus limites.</p>
+                  </div>
+                  <div className="flex flex-col sm:flex-row gap-4">
+                    {[['menino','👦','Menino'],['menina','👧','Menina'],['neutro','🧒','Amigo(a)']].map(([id,ico,lbl]) => (
+                      <button key={id} onClick={() => { setGender(id); setPhase('customize'); say(`Olá ${lbl}! Vamos montar seu personagem!`); }}
+                        className="flex flex-col items-center gap-4 p-8 card card-hover w-44 group">
+                        <span className="text-6xl group-hover:scale-110 transition-transform">{ico}</span>
+                        <span className="font-bold text-text">{lbl}</span>
+                      </button>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+
+              {/* ── CUSTOMIZE ── */}
+              {phase === 'customize' && (
+                <motion.div key="customize" initial={{opacity:0,x:40}} animate={{opacity:1,x:0}} exit={{opacity:0,x:-40}}>
+                  <AvatarCustomizer config={avatar} onChange={setAvatar}
+                    onDone={() => { setPhase('app'); say('Seu personagem está pronto! Vamos explorar!'); }} />
+                </motion.div>
+              )}
+
+              {/* ── APP ── */}
+              {phase === 'app' && (
+                <motion.div key={section} initial={{opacity:0,y:16}} animate={{opacity:1,y:0}} exit={{opacity:0,y:-16}}
+                  transition={{duration:0.3}}>
+
+                  {section === 'home' && (
+                    <div className="space-y-10">
+                      {/* Welcome card */}
+                      <div className="card p-8 bg-gradient-to-br from-teal/5 to-sage-light/40 border-none flex flex-col sm:flex-row items-center gap-8">
+                        <div className="animate-float shrink-0">
+                          <Avatar config={avatar} size="md" />
+                        </div>
+                        <div className="space-y-4">
+                          <h2 className="text-4xl text-teal">Olá! Que bom te ver aqui! 😊</h2>
+                          <p className="text-lg text-muted leading-relaxed">Hoje vamos aprender sobre o seu corpo, suas emoções e seus limites. Você é incrível!</p>
+                          <div className="p-4 bg-white/80 rounded-3xl border border-teal/20">
+                            <p className="text-teal font-bold italic">"{AFFIRMATIONS[affirmIdx % AFFIRMATIONS.length]}"</p>
+                            <button onClick={() => { setAffirmIdx(i=>i+1); say(AFFIRMATIONS[(affirmIdx+1)%AFFIRMATIONS.length]); }}
+                              className="mt-2 text-xs text-muted hover:text-teal transition-colors flex items-center gap-1">
+                              <RotateCcw size={12}/> Nova mensagem
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Progress */}
+                      <div className="space-y-2">
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm font-bold text-muted uppercase tracking-wider">Seu Progresso</span>
+                          <span className="text-sm font-bold text-teal">{completed.length} de {HOME_MODULES.length} módulos</span>
+                        </div>
+                        <div className="progress-track">
+                          <div className="progress-fill" style={{width:`${(completed.length/HOME_MODULES.length)*100}%`}} />
+                        </div>
+                      </div>
+
+                      {/* Module grid */}
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                        {HOME_MODULES.map(m => (
+                          <button key={m.id} onClick={() => { navigate(m.id as Section); say(m.title); }}
+                            className={`card card-hover p-6 text-center space-y-3 border-2 ${m.color} ${m.border} relative group`}>
+                            {completed.includes(m.id) && <span className="absolute top-2 right-2 text-sm">⭐</span>}
+                            <span className="text-4xl block group-hover:scale-110 transition-transform">{m.emoji}</span>
+                            <p className="font-bold text-text text-sm leading-tight">{m.title}</p>
+                            <p className="text-xs text-muted">{m.desc}</p>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {section === 'corpo'     && <ModuleCorpo     {...sharedProps} />}
+                  {section === 'espaco'    && <ModuleEspaco    {...sharedProps} />}
+                  {section === 'semaforo'  && <ModuleSemaforo  {...sharedProps} />}
+                  {section === 'historias' && <ModuleHistorias {...sharedProps} />}
+                  {section === 'emocoes'   && <ModuleEmocoes   {...sharedProps} />}
+                  {section === 'voz'       && <ModuleVoz       {...sharedProps} />}
+                  {section === 'ajudantes' && <ModuleAjudantes {...sharedProps} />}
+                  {section === 'progresso' && <ModuleProgresso {...sharedProps} completed={completed} totalModules={HOME_MODULES.length} />}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        </div>
+      </main>
+
+      {/* Bottom mobile nav */}
+      {phase === 'app' && (
+        <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-xl border-t border-border px-2 py-2 z-50">
+          <div className="flex gap-1 max-w-md mx-auto">
+            {NAV_ITEMS.slice(0,5).map(item => (
+              <button key={item.id} onClick={() => navigate(item.id as Section)}
+                className={`nav-pill text-xs ${section === item.id ? 'active' : ''}`}>
+                <item.icon size={20} />
+                <span>{item.label}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Therapist Panel */}
+      <AnimatePresence>
+        {showTherapist && (
+          <motion.div initial={{opacity:0,x:'100%'}} animate={{opacity:1,x:0}} exit={{opacity:0,x:'100%'}}
+            className="fixed inset-y-0 right-0 w-full max-w-sm bg-[#1a2332] text-white z-[200] flex flex-col shadow-2xl overflow-y-auto">
+            <div className="p-6 border-b border-white/10 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-teal rounded-2xl flex items-center justify-center"><BrainCircuit size={20}/></div>
+                <div>
+                  <p className="font-bold">Modo Terapeuta</p>
+                  <p className="text-xs text-white/40">Painel Profissional</p>
+                </div>
+              </div>
+              <button onClick={() => setShowTherapist(false)} className="text-white/40 hover:text-white transition-colors">
+                <ChevronRight size={28}/>
+              </button>
+            </div>
+
+            <div className="p-6 space-y-8 flex-1">
+              {/* Settings */}
+              <section className="space-y-4">
+                <h3 className="text-xs uppercase tracking-[0.2em] text-white/30 font-bold">Configurações</h3>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between bg-white/5 p-4 rounded-2xl">
+                    <span className="text-sm text-white/70">Dificuldade</span>
+                    <select value={settings.difficulty}
+                      onChange={e => setSettings(s=>({...s, difficulty: e.target.value as Difficulty}))}
+                      className="bg-transparent text-teal font-bold outline-none">
+                      <option value="basico" className="text-black">Básico</option>
+                      <option value="intermediario" className="text-black">Intermediário</option>
+                      <option value="avancado" className="text-black">Avançado</option>
+                    </select>
+                  </div>
+                  <div className="flex items-center justify-between bg-white/5 p-4 rounded-2xl">
+                    <span className="text-sm text-white/70">Narração por voz</span>
+                    <button onClick={() => setSettings(s=>({...s, audioEnabled:!s.audioEnabled}))}
+                      className={`w-12 h-6 rounded-full transition-colors relative ${settings.audioEnabled ? 'bg-teal':'bg-white/20'}`}>
+                      <motion.div animate={{x: settings.audioEnabled ? 24 : 2}}
+                        className="absolute top-1 w-4 h-4 bg-white rounded-full shadow"/>
+                    </button>
+                  </div>
+                  <div className="flex items-center justify-between bg-white/5 p-4 rounded-2xl">
+                    <span className="text-sm text-white/70">Modo Não Verbal</span>
+                    <button onClick={() => setSettings(s=>({...s, nonVerbalMode:!s.nonVerbalMode}))}
+                      className={`w-12 h-6 rounded-full transition-colors relative ${settings.nonVerbalMode ? 'bg-teal':'bg-white/20'}`}>
+                      <motion.div animate={{x: settings.nonVerbalMode ? 24 : 2}}
+                        className="absolute top-1 w-4 h-4 bg-white rounded-full shadow"/>
+                    </button>
+                  </div>
+                  <div className="flex items-center justify-between bg-white/5 p-4 rounded-2xl">
+                    <span className="text-sm text-white/70">Perfil Sensorial</span>
+                    <div className="flex gap-1">
+                      {['low','medium','high'].map(v => (
+                        <button key={v} onClick={() => setSettings(s=>({...s, visualIntensity: v as any}))}
+                          className={`px-2 py-1 rounded-lg text-[10px] font-bold ${settings.visualIntensity===v ? 'bg-teal text-white':'bg-white/10 text-white/40'}`}>
+                          {v==='low'?'Baixo':v==='medium'?'Médio':'Alto'}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              {/* Clinical guidance */}
+              <section className="space-y-4">
+                <h3 className="text-xs uppercase tracking-[0.2em] text-white/30 font-bold">Observação Clínica</h3>
+                <div className="bg-teal/10 border border-teal/20 rounded-2xl p-4">
+                  <p className="text-xs text-white/60 leading-relaxed italic">
+                    {section==='corpo' && 'Observe nomeação de partes, hesitação em zonas privadas e lateralidade.'}
+                    {section==='espaco' && 'Avalie tolerância à proximidade e reconhecimento de desconforto.'}
+                    {section==='semaforo' && 'Observe capacidade de distinguir tipos de toque e assertividade.'}
+                    {section==='historias' && 'Avalie tomada de decisão, empatia e compreensão de consentimento.'}
+                    {section==='emocoes' && 'Observe reconhecimento emocional e sinais corporais relatados.'}
+                    {section==='voz' && 'Avalie assertividade, volume de voz e confiança nas frases.'}
+                    {section==='ajudantes' && 'Observe rede de suporte identificada pela criança.'}
+                    {section==='home' && 'Sessão iniciada. Observe engajamento geral e preferências.'}
+                    {section==='progresso' && 'Revise módulos concluídos e planeje próxima sessão.'}
+                  </p>
+                </div>
+                <textarea value={notes} onChange={e => setNotes(e.target.value)}
+                  className="w-full h-28 bg-white/5 border border-white/10 rounded-2xl p-4 text-xs text-white outline-none focus:border-teal/50 transition-colors placeholder:text-white/20 resize-none"
+                  placeholder="Registrar observações da sessão..."/>
+              </section>
+
+              {/* Progress */}
+              <section className="space-y-4">
+                <h3 className="text-xs uppercase tracking-[0.2em] text-white/30 font-bold">Progresso da Sessão</h3>
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="bg-white/5 p-4 rounded-2xl">
+                    <p className="text-xs text-white/40">Concluídos</p>
+                    <p className="text-2xl font-bold text-teal">{completed.length}<span className="text-sm text-white/30">/{HOME_MODULES.length}</span></p>
+                  </div>
+                  <div className="bg-white/5 p-4 rounded-2xl">
+                    <p className="text-xs text-white/40">Dificuldade</p>
+                    <p className="text-sm font-bold text-teal capitalize">{settings.difficulty}</p>
+                  </div>
+                </div>
+                <button onClick={() => {
+                  const r = `RELATÓRIO - CORPO E LIMITES\nData: ${new Date().toLocaleDateString('pt-BR')}\nDificuldade: ${settings.difficulty}\nMódulos: ${completed.join(', ')}\nObservações:\n${notes}`;
+                  const a = document.createElement('a');
+                  a.href = URL.createObjectURL(new Blob([r],{type:'text/plain'}));
+                  a.download = `relatorio-${Date.now()}.txt`; a.click();
+                }} className="w-full py-3 border border-white/10 rounded-2xl text-xs text-white/40 hover:bg-white/5 hover:text-white transition-all font-bold uppercase tracking-wider">
+                  Exportar Relatório
+                </button>
+              </section>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}

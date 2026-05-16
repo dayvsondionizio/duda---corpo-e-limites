@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { Avatar } from '../Avatar';
-import { AvatarConfig, DEFAULT_AVATAR, SKIN_COLORS, HAIR_COLORS, CLOTHING_COLORS } from '../data';
+import { AvatarConfig, DEFAULT_AVATAR, CHARACTERS } from '../data';
 import type { TherapistSettings } from '../App';
 
 interface Props {
@@ -16,13 +16,8 @@ const REACTIONS = [
 ];
 
 function getRandomAvatar(): AvatarConfig {
-  const hairs = ['short', 'long', 'curly'];
   return {
-    ...DEFAULT_AVATAR,
-    skin: SKIN_COLORS[Math.floor(Math.random() * SKIN_COLORS.length)],
-    hair: hairs[Math.floor(Math.random() * hairs.length)],
-    hairColor: HAIR_COLORS[Math.floor(Math.random() * HAIR_COLORS.length)],
-    clothing: CLOTHING_COLORS[Math.floor(Math.random() * CLOTHING_COLORS.length)],
+    characterId: CHARACTERS[Math.floor(Math.random() * CHARACTERS.length)].id
   };
 }
 

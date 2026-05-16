@@ -2,7 +2,7 @@ import React, { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Home, Heart, BookOpen, Smile, Shield, Users, Volume2, VolumeX, BrainCircuit, ChevronRight, Settings2, Star, RotateCcw, Lock, Save, CheckCircle2 } from 'lucide-react';
 import { Avatar, AvatarCustomizer } from './Avatar';
-import { AvatarConfig, Section, Difficulty, BODY_PARTS, TOUCH_LEVELS, STORIES, EMOTIONS, HELPERS, Helper, AFFIRMATIONS, SKIN_COLORS, DEFAULT_AVATAR, HELP_EMOJIS } from './data';
+import { AvatarConfig, Section, Difficulty, BODY_PARTS, TOUCH_LEVELS, STORIES, EMOTIONS, HELPERS, Helper, AFFIRMATIONS, DEFAULT_AVATAR, HELP_EMOJIS } from './data';
 import { ModuleCorpo } from './modules/Corpo';
 import { ModuleEspaco } from './modules/Espaco';
 import { ModuleSemaforo } from './modules/Semaforo';
@@ -104,26 +104,27 @@ export default function App() {
       
       {/* Header (Only in App phase) */}
       {phase === 'app' && (
-        <header className="sticky top-0 z-[70] bg-white/70 backdrop-blur-xl border-b border-border shadow-sm">
-          <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+        <header className="sticky top-0 z-[70] bg-white/75 backdrop-blur-xl border-b border-border/60 shadow-[0_2px_20px_-4px_rgba(0,0,0,0.06)]">
+          <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <button onClick={() => setSection('home')} className="w-10 h-10 bg-teal rounded-2xl flex items-center justify-center text-white shadow-lg shadow-teal/20 hover:scale-105 transition-transform">
-                <Heart size={20} fill="currentColor" />
+              <button onClick={() => setSection('home')}
+                className="w-10 h-10 bg-gradient-to-br from-teal to-teal-dark rounded-2xl flex items-center justify-center text-white shadow-lg shadow-teal/25 hover:scale-105 active:scale-95 transition-transform">
+                <Heart size={18} fill="currentColor" />
               </button>
               <div className="hidden sm:block">
-                <h1 className="text-lg text-teal leading-none font-bold">Corpo e Limites</h1>
-                <p className="text-[10px] text-muted uppercase tracking-widest font-medium">Crescendo com autonomia</p>
+                <h1 className="text-base font-extrabold text-teal leading-none tracking-tight">Corpo e Limites</h1>
+                <p className="text-[10px] text-muted uppercase tracking-widest font-semibold">Crescendo com Autonomia</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <div className="hidden md:flex items-center gap-1 bg-warm rounded-full px-3 py-1">
+              <div className="hidden md:flex items-center gap-2 bg-teal/8 border border-teal/15 rounded-full px-4 py-1.5">
+                <div className="w-2 h-2 bg-teal rounded-full animate-pulse" />
                 <span className="text-xs text-muted">Módulos:</span>
-                <span className="text-xs font-bold text-teal">{completed.length}/{HOME_MODULES.length}</span>
+                <span className="text-xs font-extrabold text-teal">{completed.length}/{HOME_MODULES.length}</span>
               </div>
-              
               <button onClick={() => setSettings(s=>({...s, audioEnabled:!s.audioEnabled}))}
-                className={`p-2.5 rounded-2xl transition-all ${settings.audioEnabled ? 'bg-teal/10 text-teal' : 'bg-rose/10 text-rose'}`}>
-                {settings.audioEnabled ? <Volume2 size={20} /> : <VolumeX size={20} />}
+                className={`p-2.5 rounded-2xl border transition-all ${settings.audioEnabled ? 'bg-teal/8 border-teal/20 text-teal' : 'bg-rose/8 border-rose/20 text-rose'}`}>
+                {settings.audioEnabled ? <Volume2 size={18} /> : <VolumeX size={18} />}
               </button>
             </div>
           </div>
@@ -274,13 +275,10 @@ export default function App() {
                     <p className="text-xl text-muted max-w-md">Um espaço seguro para conhecer seu corpo, suas emoções e seus limites.</p>
                   </div>
                   <div className="flex flex-col sm:flex-row gap-4">
-                    {[['menino','👦','Menino'],['menina','👧','Menina'],['neutro','🧒','Amigo(a)']].map(([id,ico,lbl]) => (
-                      <button key={id} onClick={() => { setGender(id); setPhase('customize'); say(`Olá ${lbl}! Vamos montar seu personagem!`); }}
-                        className="flex flex-col items-center gap-4 p-8 card card-hover w-44 group">
-                        <span className="text-6xl group-hover:scale-110 transition-transform">{ico}</span>
-                        <span className="font-bold text-text">{lbl}</span>
-                      </button>
-                    ))}
+                    <button onClick={() => { setPhase('customize'); say('Vamos criar seu personagem!'); }}
+                      className="btn-primary py-4 px-12 text-2xl shadow-xl hover:scale-105 transition-transform flex items-center gap-4">
+                      Criar Personagem ✨ <span className="text-4xl">🎨</span>
+                    </button>
                   </div>
                 </motion.div>
               )}
@@ -299,21 +297,28 @@ export default function App() {
                   transition={{duration:0.3}}>
 
                   {section === 'home' && (
-                    <div className="space-y-10">
+                    <div className="space-y-8">
                       {/* Welcome card */}
-                      <div className="card p-8 bg-gradient-to-br from-teal/5 to-sage-light/40 border-none flex flex-col sm:flex-row items-center gap-8">
-                        <div className="animate-float shrink-0">
+                      <div className="relative overflow-hidden rounded-4xl bg-gradient-to-br from-teal/10 via-sage-light/30 to-peach/10 border border-teal/15 p-6 md:p-8 flex flex-col sm:flex-row items-center gap-6 shadow-[0_12px_40px_-12px_rgba(42,157,143,0.15)]">
+                        {/* Decorative circles */}
+                        <div className="absolute -top-12 -right-12 w-48 h-48 rounded-full bg-teal/5 blur-2xl pointer-events-none" />
+                        <div className="absolute -bottom-8 -left-8 w-32 h-32 rounded-full bg-peach/8 blur-xl pointer-events-none" />
+
+                        <div className="animate-float-slow shrink-0 relative z-10">
                           <Avatar config={avatar} size="md" />
                         </div>
-                        <div className="space-y-4">
-                          <h2 className="text-4xl text-teal">Olá! Que bom te ver aqui! 😊</h2>
-                          <p className="text-lg text-muted leading-relaxed">Hoje vamos aprender sobre o seu corpo, suas emoções e seus limites. Você é incrível!</p>
-                          <div className="p-4 bg-white/80 rounded-3xl border border-teal/20">
-                            <p className="text-teal font-bold italic">"{AFFIRMATIONS[affirmIdx % AFFIRMATIONS.length]}"</p>
-                            <button onClick={() => { setAffirmIdx(i=>i+1); say(AFFIRMATIONS[(affirmIdx+1)%AFFIRMATIONS.length]); }}
-                              className="mt-2 text-xs text-muted hover:text-teal transition-colors flex items-center gap-1">
-                              <RotateCcw size={12}/> Nova mensagem
-                            </button>
+                        <div className="space-y-4 relative z-10">
+                          <h2 className="text-3xl md:text-4xl font-extrabold text-teal tracking-tight">Olá! Que bom te ver! 😊</h2>
+                          <p className="text-muted leading-relaxed">Hoje vamos aprender sobre o seu corpo, suas emoções e seus limites. <strong className="text-text">Você é incrível!</strong></p>
+                          <div className="p-4 bg-white/70 backdrop-blur rounded-3xl border border-teal/15 flex items-start gap-3">
+                            <span className="text-2xl shrink-0">💬</span>
+                            <div>
+                              <p className="text-teal font-bold italic text-sm leading-relaxed">"{AFFIRMATIONS[affirmIdx % AFFIRMATIONS.length]}"</p>
+                              <button onClick={() => { setAffirmIdx(i=>i+1); say(AFFIRMATIONS[(affirmIdx+1)%AFFIRMATIONS.length]); }}
+                                className="mt-2 text-[11px] text-muted hover:text-teal transition-colors flex items-center gap-1 font-semibold">
+                                <RotateCcw size={11}/> Nova mensagem
+                              </button>
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -321,8 +326,8 @@ export default function App() {
                       {/* Progress */}
                       <div className="space-y-2">
                         <div className="flex justify-between items-center">
-                          <span className="text-sm font-bold text-muted uppercase tracking-wider">Seu Progresso</span>
-                          <span className="text-sm font-bold text-teal">{completed.length} de {HOME_MODULES.length} módulos</span>
+                          <span className="text-xs font-bold text-muted uppercase tracking-widest">Progresso da Sessão</span>
+                          <span className="text-xs font-extrabold text-teal bg-teal/10 px-3 py-1 rounded-full">{completed.length} / {HOME_MODULES.length} módulos</span>
                         </div>
                         <div className="progress-track">
                           <div className="progress-fill" style={{width:`${(completed.length/HOME_MODULES.length)*100}%`}} />
@@ -330,15 +335,21 @@ export default function App() {
                       </div>
 
                       {/* Module grid */}
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                        {HOME_MODULES.map(m => (
-                          <button key={m.id} onClick={() => { navigate(m.id as Section); say(m.title); }}
-                            className={`card card-hover p-6 text-center space-y-3 border-2 ${m.color} ${m.border} relative group`}>
-                            {completed.includes(m.id) && <span className="absolute top-2 right-2 text-sm">⭐</span>}
-                            <span className="text-4xl block group-hover:scale-110 transition-transform">{m.emoji}</span>
-                            <p className="font-bold text-text text-sm leading-tight">{m.title}</p>
-                            <p className="text-xs text-muted">{m.desc}</p>
-                          </button>
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 md:gap-4">
+                        {HOME_MODULES.map((m, i) => (
+                          <motion.button key={m.id}
+                            initial={{ opacity: 0, y: 12 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: i * 0.05 }}
+                            onClick={() => { navigate(m.id as Section); say(m.title); }}
+                            className={`card card-hover p-5 text-center space-y-2 border-2 ${m.color} ${m.border} relative group`}>
+                            {completed.includes(m.id) && (
+                              <span className="absolute top-2.5 right-2.5 w-5 h-5 bg-green rounded-full flex items-center justify-center text-[10px] text-white font-bold">✓</span>
+                            )}
+                            <span className="text-4xl block group-hover:scale-110 transition-transform duration-200">{m.emoji}</span>
+                            <p className="font-extrabold text-text text-sm leading-tight">{m.title}</p>
+                            <p className="text-[11px] text-muted leading-tight">{m.desc}</p>
+                          </motion.button>
                         ))}
                       </div>
                     </div>

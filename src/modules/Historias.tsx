@@ -33,21 +33,23 @@ export function ModuleHistorias({ say, onComplete, settings }: Props) {
     setLoading(true);
     say('A IA está criando uma história especial para você...');
     
-    const prompt = `Crie uma história social terapêutica curta para uma criança com o seguinte perfil: "${settings.childProfile || 'Perfil não especificado'}". 
-    A história deve ter 3 cenas. Cada cena deve ter um texto, um emoji e a última cena deve ter uma pergunta de múltipla escolha com 2 opções (uma correta e uma incorreta com feedback). 
-    Retorne APENAS um JSON no formato:
+    const prompt = `Gere uma história social baseada em limites corporais e toques seguros.
+    Perfil da criança: "${settings.childProfile || 'Criança neurotípica em aprendizado básico'}".
+    A história deve conter exatamente 3 cenas e a última deve incluir um questionário.
+    MUITO IMPORTANTE: Retorne APENAS o JSON puro, sem marcações de markdown (como \`\`\`json).
+    Use o seguinte formato exato:
     {
-      "title": "Título da História",
+      "title": "Título Criativo",
       "icon": "Emoji",
       "scenes": [
-        {"text": "texto da cena 1", "emoji": "emoji1", "speaker": "Narrador"},
-        {"text": "texto da cena 2", "emoji": "emoji2", "speaker": "Narrador"},
+        {"text": "texto lúdico da cena 1", "emoji": "emoji1", "speaker": "Narrador"},
+        {"text": "texto lúdico da cena 2", "emoji": "emoji2", "speaker": "Narrador"},
         {
-          "text": "texto da cena 3", "emoji": "emoji3", "speaker": "Narrador",
-          "question": "Pergunta sobre a história?",
+          "text": "texto de fechamento da cena 3", "emoji": "emoji3", "speaker": "Narrador",
+          "question": "Como o personagem deve agir?",
           "options": [
-            {"text": "Opção correta", "correct": true, "feedback": "Feedback positivo", "emoji": "✅"},
-            {"text": "Opção incorreta", "correct": false, "feedback": "Feedback educativo", "emoji": "❌"}
+            {"text": "Opção segura (certa)", "correct": true, "feedback": "Muito bem! O corpo é seu e você manda nele.", "emoji": "✅"},
+            {"text": "Opção insegura (errada)", "correct": false, "feedback": "Não, você pode sempre dizer 'não' para toques que não quer.", "emoji": "❌"}
           ]
         }
       ]
@@ -55,9 +57,10 @@ export function ModuleHistorias({ say, onComplete, settings }: Props) {
 
     try {
       const result = await generateContent(settings.groqApiKey, prompt);
-      const jsonStr = result.match(/\{[\s\S]*\}/)?.[0];
-      if (jsonStr) {
-        const newStory = JSON.parse(jsonStr);
+      // Extrai apenas o objeto JSON ignorando qualquer texto antes ou depois
+      const jsonMatch = result.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        const newStory = JSON.parse(jsonMatch[0]);
         newStory.id = Date.now();
         setLocalStories([newStory, ...localStories]);
         setStoryIdx(0);
@@ -65,6 +68,8 @@ export function ModuleHistorias({ say, onComplete, settings }: Props) {
         setPicked(null);
         setStoryDone(false);
         say(`Nova história criada: ${newStory.title}`);
+      } else {
+        throw new Error('JSON não encontrado na resposta.');
       }
     } catch (e) {
       console.error(e);

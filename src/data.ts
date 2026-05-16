@@ -2,58 +2,51 @@ export type Section = 'home'|'corpo'|'espaco'|'semaforo'|'historias'|'emocoes'|'
 export type Difficulty = 'basico'|'intermediario'|'avancado';
 
 export interface AvatarConfig {
-  skin: string;
-  hair: string;
-  hairColor: string;
-  clothing: string;
-  clothingType: 'shirt' | 'longshirt';
-  pantsType: 'shorts' | 'pants';
-  shoesType: 'none' | 'shoes' | 'sandals';
+  characterId: string;
 }
 
-export const SKIN_COLORS = ['#FDDCB5','#F4C48A','#D4956A','#C07D50','#8D5524','#5C3317'];
-export const HAIR_COLORS = ['#1a1a1a','#8B4513','#DAA520','#FF6B6B','#4A90D9','#FF69B4'];
-export const CLOTHING_COLORS = ['#2A9D8F','#E76F51','#457B9D','#8B7EBE','#52B788','#E9C46A'];
+export const CHARACTERS = [
+  { id: 'menina_padrao', label: 'Menina Ruiva', type: 'menina', img: '/char_menina.png' },
+  { id: 'menina_loira', label: 'Menina Loira', type: 'menina', img: '/char_menina_loira.png' },
+  { id: 'menina_morena', label: 'Menina Morena', type: 'menina', img: '/char_menina_morena.png' },
+  { id: 'menina_negra', label: 'Menina Negra', type: 'menina', img: '/char_menina_negra.png' },
+  { id: 'menino_padrao', label: 'Menino', type: 'menino', img: '/char_menino.png' },
+];
+
 export const HELP_EMOJIS = ['👩','👨','👵','👴','🧑‍🏫','👨‍🏫','👩‍⚕️','👨‍⚕️','🧑‍🦰','🧑‍🍼','🧑‍🤝‍🧑','👮','👩‍🚒','🦸','🦹','👼'];
 
 export const DEFAULT_AVATAR: AvatarConfig = {
-  skin: '#F4C48A',
-  hair: 'short',
-  hairColor: '#3D3D3D',
-  clothing: '#2A9D8F',
-  clothingType: 'shirt',
-  pantsType: 'shorts',
-  shoesType: 'shoes'
+  characterId: 'menina_padrao',
 };
 
 export interface BodyPart {
   id: string; label: string; difficulty: Difficulty;
   description: string; isPrivate?: boolean; isBack?: boolean;
-  svgX: number; svgY: number;
+  x: number; y: number; // Porcentagem em relação à imagem (0-100)
 }
 
 export const BODY_PARTS: BodyPart[] = [
-  { id:'cabeca', label:'Cabeça', difficulty:'basico', description:'Onde pensamos e sentimos o mundo.', svgX:100, svgY:45 },
-  { id:'olho', label:'Olho', difficulty:'basico', description:'Para ver as cores do mundo.', svgX:100, svgY:65 },
-  { id: 'boca', label: 'Boca', difficulty: 'basico', description: 'Uso minha boca para falar, comer e sorrir!', svgX: 100, svgY: 95 },
-  { id: 'pescoco', label: 'Pescoço', difficulty: 'intermediario', description: 'O pescoço segura minha cabeça e me ajuda a olhar para os lados.', svgX: 100, svgY: 112 },
-  { id: 'ombro', label: 'Ombro', difficulty: 'basico', description: 'Onde apoiamos nossa mochila.', svgX: 65, svgY: 135 },
-  { id:'peito', label:'Peito', difficulty:'basico', description:'Onde sentimos nosso coração bater. É uma parte que fica protegida pela roupa.', isPrivate:true, svgX:100, svgY:155 },
-  { id:'barriga', label:'Barriga', difficulty:'basico', description:'Onde a comida vai e onde fica o nosso umbigo.', svgX:100, svgY:185 },
-  { id:'braco', label:'Braço', difficulty:'basico', description:'Para brincar e dar abraços.', svgX:50, svgY:170 },
-  { id:'cotovelo', label:'Cotovelo', difficulty:'intermediario', description:'A dobrinha do braço.', svgX:45, svgY:180 },
-  { id:'pulso', label:'Pulso', difficulty:'avancado', description:'Onde o relógio fica.', svgX:40, svgY:210 },
-  { id:'mao', label:'Mão', difficulty:'basico', description:'Para fazer carinho e criar coisas.', svgX:40, svgY:225 },
-  { id:'dedos', label:'Dedos', difficulty:'intermediario', description:'Pequenos ajudantes das mãos.', svgX:40, svgY:235 },
-  { id:'cintura', label:'Cintura', difficulty:'avancado', description:'Onde seguramos a calça.', svgX:100, svgY:215 },
-  { id:'vulva_penis', label:'Partes Íntimas', difficulty:'basico', description:'Ficam cobertas pela roupa de baixo. São só suas e ninguém deve tocar sem um motivo de saúde ou higiene.', isPrivate:true, svgX:100, svgY:235 },
-  { id:'pernas', label:'Pernas', difficulty:'basico', description:'Fortes para nos fazer correr e pular.', svgX:85, svgY:265 },
-  { id:'coxas', label:'Coxas', difficulty:'intermediario', description:'A parte de cima das nossas pernas.', svgX:85, svgY:250 },
-  { id:'joelho', label:'Joelho', difficulty:'intermediario', description:'A dobrinha da perna.', svgX:90, svgY:285 },
-  { id:'tornozelo', label:'Tornozelo', difficulty:'avancado', description:'Perto do pé.', svgX:90, svgY:310 },
-  { id:'pe', label:'Pé', difficulty:'basico', description:'Nos leva para todos os lugares.', svgX:95, svgY:320 },
-  { id:'costas', label:'Costas', difficulty:'intermediario', description:'A parte de trás do corpo.', isBack:true, svgX:145, svgY:155 },
-  { id:'bum_bum', label:'Bumbum', difficulty:'basico', description:'Parte de trás que usamos para sentar. É uma parte privada.', isPrivate:true, isBack:true, svgX:100, svgY:250 },
+  { id:'cabeca',     label:'Cabeça',         difficulty:'basico',        description:'Onde pensamos e sentimos o mundo.',                                                                            x:50, y:10 },
+  { id:'olho',       label:'Olho',           difficulty:'basico',        description:'Para ver as cores do mundo.',                                                                                  x:50, y:16 },
+  { id:'boca',       label:'Boca',           difficulty:'basico',        description:'Uso minha boca para falar, comer e sorrir!',                                                                  x:50, y:21 },
+  { id:'pescoco',    label:'Pescoço',        difficulty:'intermediario', description:'O pescoço segura minha cabeça e me ajuda a olhar para os lados.',                                              x:50, y:26 },
+  { id:'ombro',      label:'Ombro',          difficulty:'basico',        description:'Onde apoiamos nossa mochila.',                                                                                 x:30, y:31 },
+  { id:'peito',      label:'Peito',          difficulty:'basico',        description:'Onde sentimos nosso coração bater. É uma parte que fica protegida pela roupa.', isPrivate:true,               x:50, y:36 },
+  { id:'barriga',    label:'Barriga',        difficulty:'basico',        description:'Onde a comida vai e onde fica o nosso umbigo.',                                                               x:50, y:45 },
+  { id:'braco',      label:'Braço',          difficulty:'basico',        description:'Para brincar e dar abraços.',                                                                                 x:20, y:38 },
+  { id:'cotovelo',   label:'Cotovelo',       difficulty:'intermediario', description:'A dobrinha do braço.',                                                                                        x:15, y:48 },
+  { id:'pulso',      label:'Pulso',          difficulty:'avancado',      description:'Onde o relógio fica.',                                                                                        x:18, y:55 },
+  { id:'mao',        label:'Mão',            difficulty:'basico',        description:'Para fazer carinho e criar coisas.',                                                                          x:20, y:60 },
+  { id:'dedos',      label:'Dedos',          difficulty:'intermediario', description:'Pequenos ajudantes das mãos.',                                                                                x:20, y:63 },
+  { id:'cintura',    label:'Cintura',        difficulty:'avancado',      description:'Onde seguramos a calça.',                                                                                     x:50, y:52 },
+  { id:'vulva_penis',label:'Partes Íntimas', difficulty:'basico',        description:'Ficam cobertas pela roupa de baixo. São só suas e ninguém deve tocar sem um motivo de saúde ou higiene.', isPrivate:true, x:50, y:58 },
+  { id:'pernas',     label:'Pernas',         difficulty:'basico',        description:'Fortes para nos fazer correr e pular.',                                                                       x:43, y:74 },
+  { id:'coxas',      label:'Coxas',          difficulty:'intermediario', description:'A parte de cima das nossas pernas.',                                                                          x:43, y:65 },
+  { id:'joelho',     label:'Joelho',         difficulty:'intermediario', description:'A dobrinha da perna.',                                                                                        x:43, y:81 },
+  { id:'tornozelo',  label:'Tornozelo',      difficulty:'avancado',      description:'Perto do pé.',                                                                                               x:43, y:90 },
+  { id:'pe',         label:'Pé',             difficulty:'basico',        description:'Nos leva para todos os lugares.',                                                                             x:43, y:95 },
+  { id:'costas',     label:'Costas',         difficulty:'intermediario', description:'A parte de trás do corpo.',                                                               isBack:true,        x:50, y:36 },
+  { id:'bum_bum',    label:'Bumbum',         difficulty:'basico',        description:'Parte de trás que usamos para sentar. É uma parte privada.', isPrivate:true, isBack:true,                   x:50, y:58 },
 ];
 
 export const AAC_CATEGORIES = [

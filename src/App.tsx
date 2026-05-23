@@ -100,30 +100,37 @@ export default function App() {
   const sharedProps = { settings, say, onComplete: complete, onNavigate: navigate, avatar, customHelpers };
 
   return (
-    <div key={resetKey} className="min-h-screen flex flex-col bg-cream font-sans text-text selection:bg-teal/20 selection:text-teal-dark overflow-x-hidden">
+    <div key={resetKey} className="min-h-screen flex flex-col bg-cream font-sans text-text selection:bg-teal/20 selection:text-teal-dark overflow-x-hidden relative">
       
+      {/* Ambient mesh background shapes */}
+      <div className="bg-glow-container">
+        <div className="bg-glow-1" />
+        <div className="bg-glow-2" />
+        <div className="bg-glow-3" />
+      </div>
+
       {/* Header (Only in App phase) */}
       {phase === 'app' && (
-        <header className="sticky top-0 z-[70] bg-white/75 backdrop-blur-xl border-b border-border/60 shadow-[0_2px_20px_-4px_rgba(0,0,0,0.06)]">
+        <header className="sticky top-0 z-[70] bg-white/70 backdrop-blur-md border-b border-white/40 shadow-[0_4px_30px_rgba(0,0,0,0.03)]">
           <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <button onClick={() => setSection('home')}
-                className="w-10 h-10 bg-gradient-to-br from-teal to-teal-dark rounded-2xl flex items-center justify-center text-white shadow-lg shadow-teal/25 hover:scale-105 active:scale-95 transition-transform">
+                className="w-10 h-10 bg-gradient-to-br from-teal to-teal-dark rounded-2xl flex items-center justify-center text-white shadow-lg shadow-teal/25 hover:scale-105 active:scale-95 transition-transform cursor-pointer">
                 <Heart size={18} fill="currentColor" />
               </button>
               <div className="hidden sm:block">
-                <h1 className="text-base font-extrabold text-teal leading-none tracking-tight">Corpo e Limites</h1>
-                <p className="text-[10px] text-muted uppercase tracking-widest font-semibold">Crescendo com Autonomia</p>
+                <h1 className="text-base font-extrabold bg-gradient-to-r from-teal via-teal-dark to-blue bg-clip-text text-transparent leading-none tracking-tight">Corpo e Limites</h1>
+                <p className="text-[10px] text-muted uppercase tracking-widest font-black mt-1">Crescendo com Autonomia</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <div className="hidden md:flex items-center gap-2 bg-teal/8 border border-teal/15 rounded-full px-4 py-1.5">
+              <div className="hidden md:flex items-center gap-2 bg-teal/10 border border-teal/20 rounded-full px-4 py-1.5">
                 <div className="w-2 h-2 bg-teal rounded-full animate-pulse" />
                 <span className="text-xs text-muted">Módulos:</span>
                 <span className="text-xs font-extrabold text-teal">{completed.length}/{HOME_MODULES.length}</span>
               </div>
               <button onClick={() => setSettings(s=>({...s, audioEnabled:!s.audioEnabled}))}
-                className={`p-2.5 rounded-2xl border transition-all ${settings.audioEnabled ? 'bg-teal/8 border-teal/20 text-teal' : 'bg-rose/8 border-rose/20 text-rose'}`}>
+                className={`p-2.5 rounded-2xl border transition-all cursor-pointer ${settings.audioEnabled ? 'bg-teal/10 border-teal/20 text-teal' : 'bg-rose/10 border-rose/20 text-rose'}`}>
                 {settings.audioEnabled ? <Volume2 size={18} /> : <VolumeX size={18} />}
               </button>
             </div>
@@ -134,7 +141,7 @@ export default function App() {
       {/* Main Content */}
       <main className="flex-1 flex">
         {phase === 'app' && (
-          <nav className="fixed bottom-0 left-0 right-0 z-[60] bg-white/90 backdrop-blur-xl border-t border-border flex justify-around p-2 md:static md:flex md:flex-col md:w-52 md:shrink-0 md:p-4 md:border-t-0 md:border-r md:bg-white/50 lg:w-64">
+          <nav className="fixed bottom-4 left-4 right-4 md:bottom-auto md:left-auto md:right-auto z-[60] bg-white/80 backdrop-blur-xl border border-white/60 flex justify-around p-2.5 rounded-3xl shadow-[0_12px_40px_rgba(0,0,0,0.08)] md:static md:flex md:flex-col md:w-52 md:shrink-0 md:p-4 md:border-t-0 md:border-r md:bg-white/50 lg:w-64 md:rounded-none md:shadow-none md:border-none">
             {NAV_ITEMS.map(item => (
               <button key={item.id} onClick={() => navigate(item.id as Section)}
                 className={`nav-pill ${section === item.id ? 'active' : ''}`}>
@@ -143,7 +150,7 @@ export default function App() {
               </button>
             ))}
             <div className="hidden md:block mt-auto pt-6 border-t border-border">
-              <button onClick={resetApp} className="w-full flex items-center gap-2 p-3 text-muted hover:text-rose transition-colors text-xs font-bold uppercase tracking-widest">
+              <button onClick={resetApp} className="w-full flex items-center gap-2 p-3 text-muted hover:text-rose transition-colors text-xs font-bold uppercase tracking-widest cursor-pointer">
                 <RotateCcw size={14} /> Reiniciar App
               </button>
             </div>
@@ -151,7 +158,7 @@ export default function App() {
         )}
 
         <div className="flex-1 overflow-y-auto">
-          <div className="max-w-4xl mx-auto px-4 py-4 md:py-8 pb-32">
+          <div className="max-w-4xl mx-auto px-4 py-4 md:py-8 pb-20 md:pb-8">
             <AnimatePresence mode="wait">
 
               {/* ── SETUP (Professional) ── */}

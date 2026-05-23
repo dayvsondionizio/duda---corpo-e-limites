@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ChevronRight, ChevronLeft, Sparkles, Loader2 } from 'lucide-react';
 import { STORIES, Story, AvatarConfig, HELP_EMOJIS } from '../data';
@@ -19,6 +19,15 @@ export function ModuleHistorias({ say, onComplete, settings }: Props) {
   const [storyDone, setStoryDone] = useState(false);
   const [allDone, setAllDone] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  // Mobile responsiveness
+  const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' ? window.innerWidth < 768 : false);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const story = localStories[storyIdx];
   const scene = story?.scenes[sceneIdx];
@@ -57,7 +66,6 @@ export function ModuleHistorias({ say, onComplete, settings }: Props) {
 
     try {
       const result = await generateContent(settings.groqApiKey, prompt);
-      // Extrai apenas o objeto JSON ignorando qualquer texto antes ou depois
       const jsonMatch = result.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
         const newStory = JSON.parse(jsonMatch[0]);
@@ -107,30 +115,30 @@ export function ModuleHistorias({ say, onComplete, settings }: Props) {
 
   if (allDone) return (
     <motion.div initial={{scale:0.8,opacity:0}} animate={{scale:1,opacity:1}}
-      className="card p-12 text-center space-y-6">
-      <div className="text-8xl">📖</div>
-      <h3 className="text-4xl text-teal">Você é um leitor incrível!</h3>
+      className="card p-8 md:p-12 text-center space-y-6 max-w-lg mx-auto">
+      <div className="text-7xl md:text-8xl">📖</div>
+      <h3 className="text-3xl md:text-4xl text-teal font-bold">Você é um leitor incrível!</h3>
       <p className="text-lg text-muted">Completou todas as histórias. Você aprendeu muito sobre respeito e limites!</p>
       <button onClick={()=>{setAllDone(false);setStoryIdx(0);setSceneIdx(0);setPicked(null);setFeedback('');setStoryDone(false);}}
-        className="btn-ghost px-8 py-3">Ler de novo</button>
+        className="btn-ghost px-8 py-3 mx-auto cursor-pointer">Ler de novo</button>
     </motion.div>
   );
 
   if (storyDone) return (
     <motion.div initial={{scale:0.9,opacity:0}} animate={{scale:1,opacity:1}}
-      className="card p-12 text-center space-y-6">
-      <div className="text-8xl">{story?.icon}</div>
-      <h3 className="text-3xl text-teal">Fim de "{story?.title}"!</h3>
-      <p className="text-lg text-muted">Você terminou essa história. O que aprendeu?</p>
+      className="card p-8 md:p-12 text-center space-y-6 max-w-lg mx-auto">
+      <div className="text-7xl md:text-8xl">{story?.icon}</div>
+      <h3 className="text-2xl md:text-3xl text-teal font-bold">Fim de "{story?.title}"!</h3>
+      <p className="text-base text-muted">Você terminou essa história. O que aprendeu?</p>
       <div className="card p-4 bg-teal/5 border border-teal/20">
-        <p className="font-bold text-teal">💡 Lição: Todo mundo merece ter seus limites respeitados!</p>
+        <p className="font-bold text-teal text-sm">💡 Lição: Todo mundo merece ter seus limites respeitados!</p>
       </div>
       {storyIdx + 1 < localStories.length ? (
-        <button onClick={nextStory} className="btn-primary px-10 py-4 text-lg flex items-center gap-2 mx-auto">
-          Próxima história <ChevronRight size={20}/>
+        <button onClick={nextStory} className="btn-primary px-10 py-4 text-base flex items-center gap-2 mx-auto cursor-pointer">
+          Próxima história <ChevronRight size={18}/>
         </button>
       ) : (
-        <button onClick={nextStory} className="btn-primary px-10 py-4 text-lg mx-auto">
+        <button onClick={nextStory} className="btn-primary px-10 py-4 text-base mx-auto cursor-pointer">
           Finalizar! 🎉
         </button>
       )}
@@ -138,84 +146,90 @@ export function ModuleHistorias({ say, onComplete, settings }: Props) {
   );
 
   return (
-    <div className="space-y-8">
-      <div className="flex items-center justify-between gap-4">
-        <div className="min-w-0">
-          <h2 className="text-3xl sm:text-4xl text-teal truncate">Histórias 📖</h2>
-          <p className="text-muted mt-1 text-sm">História {storyIdx+1} de {localStories.length}: <strong>{story?.title}</strong></p>
+    <div className="space-y-5 flex flex-col min-h-[75vh] justify-between">
+      <div className="space-y-4">
+        <div className="flex items-center justify-between gap-4">
+          <div className="min-w-0">
+            <h2 className="text-2xl sm:text-3xl text-teal truncate font-bold">Histórias 📖</h2>
+            <p className="text-muted mt-1 text-xs">História {storyIdx+1} de {localStories.length}: <strong className="text-text">{story?.title}</strong></p>
+          </div>
+          <button onClick={generateAIStory} disabled={loading}
+            className="btn-primary px-4 py-2 text-xs flex items-center gap-2 shrink-0 bg-purple hover:bg-purple-dark border-none shadow-none cursor-pointer">
+            {loading ? <Loader2 size={14} className="animate-spin"/> : <Sparkles size={14}/>}
+            <span>{loading ? 'Criando...' : 'Criar com IA'}</span>
+          </button>
         </div>
-        <button onClick={generateAIStory} disabled={loading}
-          className="btn-primary px-4 py-2 text-xs flex items-center gap-2 shrink-0 bg-purple hover:bg-purple-dark border-none shadow-none">
-          {loading ? <Loader2 size={14} className="animate-spin"/> : <Sparkles size={14}/>}
-          <span className="hidden sm:inline">{loading ? 'Criando...' : 'IA: Nova História'}</span>
-        </button>
-      </div>
 
-      {/* Progress */}
-      <div className="space-y-1">
-        <p className="text-xs text-muted font-bold">Cena {sceneIdx+1} de {story.scenes.length}</p>
-        <div className="progress-track">
-          <div className="progress-fill" style={{width:`${((sceneIdx+1)/story.scenes.length)*100}%`}}/>
+        {/* Progress */}
+        <div className="space-y-1">
+          <p className="text-[10px] text-muted font-bold">Cena {sceneIdx+1} de {story.scenes.length}</p>
+          <div className="progress-track">
+            <div className="progress-fill" style={{width:`${((sceneIdx+1)/story.scenes.length)*100}%`}}/>
+          </div>
         </div>
       </div>
 
       <AnimatePresence mode="wait">
         <motion.div key={sceneIdx} initial={{opacity:0,x:40}} animate={{opacity:1,x:0}} exit={{opacity:0,x:-40}}
-          className="space-y-6">
+          className="space-y-4 flex-1 flex flex-col justify-center">
 
           {/* Visual Scene Animation Box */}
-          <div className="relative h-64 bg-gradient-to-b from-teal/10 to-cream rounded-4xl flex items-center justify-center overflow-hidden border-2 border-white/50 shadow-inner">
+          <div className={`relative ${isMobile ? 'h-36' : 'h-64'} bg-gradient-to-b from-teal/10 to-cream rounded-4xl flex items-center justify-center overflow-hidden border-2 border-white/50 shadow-inner shrink-0`}>
              {/* Background elements */}
-             <motion.span animate={{y: [0,-20,0], opacity: [0.3,0.6,0.3]}} transition={{duration:4, repeat:Infinity}} className="absolute top-10 left-10 text-3xl opacity-20">☁️</motion.span>
-             <motion.span animate={{y: [0,20,0], opacity: [0.3,0.6,0.3]}} transition={{duration:5, repeat:Infinity}} className="absolute top-20 right-10 text-3xl opacity-20">✨</motion.span>
-             <motion.span animate={{scale: [1,1.2,1]}} transition={{duration:3, repeat:Infinity}} className="absolute bottom-10 left-1/4 text-2xl opacity-10">🌱</motion.span>
+             <motion.span animate={{y: [0,-15,0], opacity: [0.3,0.6,0.3]}} transition={{duration:4, repeat:Infinity}} className="absolute top-6 left-6 text-2xl opacity-20 pointer-events-none">☁️</motion.span>
+             <motion.span animate={{y: [0,15,0], opacity: [0.3,0.6,0.3]}} transition={{duration:5, repeat:Infinity}} className="absolute top-10 right-6 text-2xl opacity-20 pointer-events-none">✨</motion.span>
              
-             {/* Main emoji / character */}
+             {/* Main emoji */}
              <motion.div key={sceneIdx} initial={{scale:0, rotate:-20}} animate={{scale:1, rotate:0}} transition={{type:'spring', damping:12}}
-               className="text-8xl filter drop-shadow-xl z-10">
+               className={`${isMobile ? 'text-6xl' : 'text-8xl'} filter drop-shadow-xl z-10`}>
                {scene.emoji || '📖'}
              </motion.div>
 
              {/* Dynamic feedback elements */}
              {picked === true && (
-                <motion.div initial={{scale:0}} animate={{scale:1.5}} className="absolute text-6xl">🎉</motion.div>
+                <motion.div initial={{scale:0}} animate={{scale:1.4}} className="absolute text-5xl z-20">🎉</motion.div>
              )}
           </div>
 
           {/* Text card */}
-          <div className="card p-8 space-y-4 shadow-xl">
-            {scene.speaker && <p className="text-xs font-bold text-teal uppercase tracking-[0.2em]">{scene.speaker}:</p>}
-            <p className="text-2xl text-text leading-relaxed font-bold">"{scene.text}"</p>
-            <button onClick={()=>say(scene.text)} className="btn-ghost px-4 py-2 text-xs flex items-center gap-2">
+          <div className={`card ${isMobile ? 'p-5' : 'p-8'} space-y-3 shadow-md flex-1 flex flex-col justify-between max-h-[220px] overflow-y-auto`}>
+            <div>
+              {scene.speaker && <p className="text-[10px] font-bold text-teal uppercase tracking-[0.2em]">{scene.speaker}:</p>}
+              <p className={`${isMobile ? 'text-base' : 'text-2xl'} text-text leading-relaxed font-bold`}>"{scene.text}"</p>
+            </div>
+            <button onClick={()=>say(scene.text)} className="btn-ghost px-3 py-1.5 text-[10px] flex items-center gap-1.5 w-fit mt-2 cursor-pointer bg-warm/30">
                🔊 Ouvir Narrador
-            </button>
+             </button>
           </div>
 
-          {/* Question */}
+          {/* Question inside quiz scene */}
           {scene.question && (
-            <div className="space-y-4">
-              <h3 className="text-xl font-bold text-text text-center">{scene.question}</h3>
-              <div className="space-y-3">
+            <div className="space-y-3 pt-2">
+              <h3 className="text-base font-bold text-text text-center">{scene.question}</h3>
+              <div className="grid gap-2.5 max-w-md mx-auto w-full">
                 {scene.options?.map((opt, i) => (
                   <button key={i} onClick={()=>answer(opt)}
-                    className={`btn-option flex items-center gap-4 ${
+                    className={`btn-option flex items-center gap-3 p-3.5 text-sm ${
                       picked !== null
                         ? opt.correct ? 'border-green bg-green/10 text-green' : 'opacity-50'
                         : ''
                     }`}>
-                    <span className="text-2xl">{opt.emoji}</span>
-                    <span className="font-bold">{opt.text}</span>
+                    <span className="text-xl">{opt.emoji}</span>
+                    <span className="font-bold text-left">{opt.text}</span>
                   </button>
                 ))}
               </div>
-              <AnimatePresence>
-                {feedback && (
-                  <motion.div initial={{opacity:0,y:6}} animate={{opacity:1,y:0}}
-                    className={`p-4 rounded-3xl font-bold text-center ${picked ? 'bg-green/10 text-green':'bg-rose/10 text-rose'}`}>
-                    {feedback}
-                  </motion.div>
-                )}
-              </AnimatePresence>
+              
+              <div className="min-h-[44px] flex items-center justify-center">
+                <AnimatePresence>
+                  {feedback && (
+                    <motion.div initial={{opacity:0,y:6}} animate={{opacity:1,y:0}}
+                      className={`p-3 rounded-2xl font-bold text-xs text-center w-full max-w-md ${picked ? 'bg-green/10 text-green':'bg-rose/10 text-rose'}`}>
+                      {feedback}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
             </div>
           )}
         </motion.div>
@@ -224,12 +238,12 @@ export function ModuleHistorias({ say, onComplete, settings }: Props) {
       {/* Navigation */}
       <div className="flex items-center justify-between pt-4">
         <button onClick={prev} disabled={sceneIdx===0}
-          className="btn-ghost px-6 py-3 flex items-center gap-2 disabled:opacity-30">
-          <ChevronLeft size={18}/> Anterior
+          className="btn-ghost px-5 py-2.5 text-sm flex items-center gap-1.5 disabled:opacity-30 cursor-pointer">
+          <ChevronLeft size={16}/> Anterior
         </button>
         {(!scene.question || picked !== null) && (
-          <button onClick={next} className="btn-primary px-8 py-3 flex items-center gap-2">
-            {isLast ? 'Finalizar história' : 'Próxima cena'} <ChevronRight size={18}/>
+          <button onClick={next} className="btn-primary px-6 py-2.5 text-sm flex items-center gap-1.5 cursor-pointer">
+            {isLast ? 'Finalizar' : 'Próxima'} <ChevronRight size={16}/>
           </button>
         )}
       </div>

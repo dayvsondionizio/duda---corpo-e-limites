@@ -111,6 +111,24 @@ export function Avatar({ config, size = 'md', highlightPart, onPartClick, animat
           <path d="M74 198 Q100 205 126 198" fill="none" stroke={pal.pants} strokeWidth="4" strokeOpacity="0.4" />
         </g>
 
+        {/* ── BACK PANTS DETAILS (Bumbum visual indicator) ── */}
+        {backView && (
+          <g>
+            {/* Buttocks curves shading (soft dark shadow to show cheek contours) */}
+            <ellipse cx="88" cy="222" rx="11" ry="13" fill="black" opacity="0.08" />
+            <ellipse cx="112" cy="222" rx="11" ry="13" fill="black" opacity="0.08" />
+            
+            {/* Back pockets and central seam */}
+            <g stroke="#1a365d" strokeWidth="1.5" fill="none" opacity="0.5">
+              {/* Central dividing seam */}
+              <path d={boy ? "M100 198 L100 242" : "M100 198 L100 228"} />
+              {/* Classic jeans-style back pockets */}
+              <path d="M80 210 L90 210 L89 221 L81 221 Z" />
+              <path d="M110 210 L120 210 L119 221 L111 221 Z" />
+            </g>
+          </g>
+        )}
+
         {/* ── SHIRT ── */}
         <g filter={`url(#sh-${size})`}>
           {/* Body */}
@@ -119,6 +137,12 @@ export function Avatar({ config, size = 'md', highlightPart, onPartClick, animat
           <path d="M68 132 Q48 145 44 170 Q54 178 60 172 Q62 155 72 145 Z" fill={`url(#cl-${size})`} />
           {/* Right sleeve */}
           <path d="M132 132 Q152 145 156 170 Q146 178 140 172 Q138 155 128 145 Z" fill={`url(#cl-${size})`} />
+          
+          {/* Disney style shirt details (white trims/collars) */}
+          <path d="M86 132 Q100 138 114 132" fill="none" stroke="white" strokeWidth="2.5" opacity="0.85" />
+          <path d="M44 170 Q54 178 60 172" fill="none" stroke="white" strokeWidth="2" opacity="0.8" />
+          <path d="M156 170 Q146 178 140 172" fill="none" stroke="white" strokeWidth="2" opacity="0.8" />
+          
           {/* Collar shadow */}
           <path d="M88 132 Q100 128 112 132" fill="none" stroke={pal.clothing} strokeWidth="3" strokeOpacity="0.5" />
         </g>
@@ -167,6 +191,8 @@ export function Avatar({ config, size = 'md', highlightPart, onPartClick, animat
                 {/* Side volume */}
                 <path d="M61 75 C58 50 62 32 72 28 C65 40 63 58 65 72 Z" fill={pal.hair} opacity="0.7" />
                 <path d="M139 75 C142 50 138 32 128 28 C135 40 137 58 135 72 Z" fill={pal.hair} opacity="0.7" />
+                {/* Gloss highlight */}
+                <path d="M78 38 Q100 30 122 38" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" opacity="0.22" />
               </g>
             ) : (
               // Girl: two pigtails + hair cap
@@ -185,33 +211,50 @@ export function Avatar({ config, size = 'md', highlightPart, onPartClick, animat
                 {/* Long strands going down beside head */}
                 <path d="M50 52 Q42 100 46 140 Q52 130 56 120 Q54 90 58 60 Z" fill={pal.hair} fillOpacity="0.8" />
                 <path d="M150 52 Q158 100 154 140 Q148 130 144 120 Q146 90 142 60 Z" fill={pal.hair} fillOpacity="0.8" />
+                {/* Gloss highlight */}
+                <path d="M78 38 Q100 30 122 38" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" opacity="0.22" />
               </g>
             )}
 
-            {/* ── EYES ── */}
+            {/* ── EYES (Disney style) ── */}
             {/* Left eye */}
-            <ellipse cx="83" cy="76" rx="10" ry="11" fill="white" />
-            <ellipse cx="84" cy="77" rx="6.5" ry="7" fill="#2B4A8C" />
-            <ellipse cx="84" cy="77" rx="4" ry="4.5" fill="#0D1B3E" />
-            <circle cx="86" cy="74" r="2" fill="white" />
-            <path d="M73 68 Q83 64 93 68" fill="none" stroke={pal.hair} strokeWidth="2.5" strokeLinecap="round" />
+            <ellipse cx="83" cy="76" rx="11" ry="12" fill="white" stroke="#2B4A8C" strokeWidth="0.5" />
+            <ellipse cx="84" cy="76.5" rx="7.5" ry="8" fill="#2B4A8C" />
+            <path d="M79 78 A6 6 0 0 0 89 78 A6.5 6.5 0 0 1 79 78 Z" fill="#9DD5CF" opacity="0.6" />
+            <ellipse cx="84.5" cy="75.5" rx="4.5" ry="5" fill="#0D1B3E" />
+            <circle cx="81.5" cy="72.5" r="2.8" fill="white" />
+            <circle cx="87" cy="78" r="1.2" fill="white" />
+            {/* Expressive long lashes */}
+            <path d="M71 73 Q79 66 89 71" fill="none" stroke="#2B4A8C" strokeWidth="2" strokeLinecap="round" />
+            
+            {/* Brows */}
+            <path d="M71 67 Q82 60 91 66" fill="none" stroke={pal.hairShad} strokeWidth="3.5" strokeLinecap="round" />
+
             {/* Right eye */}
-            <ellipse cx="117" cy="76" rx="10" ry="11" fill="white" />
-            <ellipse cx="116" cy="77" rx="6.5" ry="7" fill="#2B4A8C" />
-            <ellipse cx="116" cy="77" rx="4" ry="4.5" fill="#0D1B3E" />
-            <circle cx="118" cy="74" r="2" fill="white" />
-            <path d="M107 68 Q117 64 127 68" fill="none" stroke={pal.hair} strokeWidth="2.5" strokeLinecap="round" />
+            <ellipse cx="117" cy="76" rx="11" ry="12" fill="white" stroke="#2B4A8C" strokeWidth="0.5" />
+            <ellipse cx="116" cy="76.5" rx="7.5" ry="8" fill="#2B4A8C" />
+            <path d="M111 78 A6 6 0 0 0 121 78 A6.5 6.5 0 0 1 111 78 Z" fill="#9DD5CF" opacity="0.6" />
+            <ellipse cx="115.5" cy="75.5" rx="4.5" ry="5" fill="#0D1B3E" />
+            <circle cx="112.5" cy="72.5" r="2.8" fill="white" />
+            <circle cx="115" cy="78" r="1.2" fill="white" />
+            {/* Expressive long lashes */}
+            <path d="M129 73 Q121 66 111 71" fill="none" stroke="#2B4A8C" strokeWidth="2" strokeLinecap="round" />
+            
+            {/* Brows */}
+            <path d="M129 67 Q118 60 109 66" fill="none" stroke={pal.hairShad} strokeWidth="3.5" strokeLinecap="round" />
 
-            {/* ── NOSE ── */}
-            <path d="M97 88 Q100 93 103 88" fill="none" stroke={pal.skinShad} strokeWidth="2" strokeLinecap="round" opacity="0.7" />
+            {/* ── NOSE (Disney style) ── */}
+            <path d="M97 87 Q100 90 103 87" fill="none" stroke={pal.skinShad} strokeWidth="2.5" strokeLinecap="round" opacity="0.8" />
 
-            {/* ── MOUTH ── */}
-            <path d="M88 100 Q100 111 112 100" fill="none" stroke="#C0392B" strokeWidth="3" strokeLinecap="round" />
-            <path d="M91 100 Q100 109 109 100 Q100 115 91 100 Z" fill="#E74C3C" opacity="0.25" />
+            {/* ── MOUTH (Disney style) ── */}
+            <path d="M86 98 Q100 111 114 98" fill="none" stroke="#C0392B" strokeWidth="3.5" strokeLinecap="round" />
+            <path d="M90 99.5 Q100 109 110 99.5 Q100 116 90 99.5 Z" fill="#E74C3C" opacity="0.3" />
+            <path d="M84 99 Q86 96 88 98" fill="none" stroke="#C0392B" strokeWidth="2.5" strokeLinecap="round" />
+            <path d="M116 99 Q114 96 112 98" fill="none" stroke="#C0392B" strokeWidth="2.5" strokeLinecap="round" />
 
             {/* ── BLUSH ── */}
-            <ellipse cx="73" cy="88" rx="9" ry="6" fill="#FF8A80" opacity="0.3" />
-            <ellipse cx="127" cy="88" rx="9" ry="6" fill="#FF8A80" opacity="0.3" />
+            <ellipse cx="71" cy="88" rx="10" ry="7" fill="#FF8A80" opacity="0.25" />
+            <ellipse cx="129" cy="88" rx="10" ry="7" fill="#FF8A80" opacity="0.25" />
 
             {/* ── FRECKLES for ruiva ── */}
             {config.characterId === 'menina_padrao' && (
@@ -225,8 +268,12 @@ export function Avatar({ config, size = 'md', highlightPart, onPartClick, animat
           // Back of head
           <g>
             {boy ? (
-              <path d="M62 68 C62 28 138 28 138 68 C135 90 115 96 100 96 C85 96 65 90 62 68 Z"
-                fill={`url(#hr-${size})`} filter={`url(#sh-${size})`} />
+              <g>
+                <path d="M62 68 C62 28 138 28 138 68 C135 90 115 96 100 96 C85 96 65 90 62 68 Z"
+                  fill={`url(#hr-${size})`} filter={`url(#sh-${size})`} />
+                {/* Hair gloss */}
+                <path d="M78 38 Q100 30 122 38" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" opacity="0.2" />
+              </g>
             ) : (
               <g filter={`url(#sh-${size})`}>
                 <path d="M62 68 C62 28 138 28 138 68 C135 90 115 96 100 96 C85 96 65 90 62 68 Z" fill={pal.hair} />
@@ -236,6 +283,8 @@ export function Avatar({ config, size = 'md', highlightPart, onPartClick, animat
                 <path d="M150 55 Q158 45 152 35 Q144 28 134 40 Q142 48 145 60 Z" fill={pal.hair} />
                 <circle cx="63" cy="48" r="5" fill={pal.clothing} opacity="0.9" />
                 <circle cx="137" cy="48" r="5" fill={pal.clothing} opacity="0.9" />
+                {/* Hair gloss */}
+                <path d="M78 38 Q100 30 122 38" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" opacity="0.2" />
               </g>
             )}
           </g>

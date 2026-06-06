@@ -365,3 +365,11 @@
 .animate-bounce-in  { animation: bounce-in 0.65s cubic-bezier(0.34,1.56,0.64,1) forwards; }
 .animate-glow       { animation: glow-teal 2.5s ease-in-out infinite; }
 .animate-slide-up   { animation: slide-up 0.4s ease-out forwards; }
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
